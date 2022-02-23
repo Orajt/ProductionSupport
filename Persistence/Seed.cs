@@ -8,7 +8,7 @@ namespace Persistence
         public static async Task SeedData(DataContext context,
             UserManager<AppUser> userManager)
         {
-            if (!userManager.Users.Any())
+            if (!context.ProductionDepartments.Any())
             {
 
                 // ---------Production Departments---------//   
@@ -16,7 +16,7 @@ namespace Persistence
                 {
                    new ProductionDepartment{Name="App administration Department"},
                 };
-                await context.ProductionDepartments.AddRangeAsync(productionDepartments);
+                context.ProductionDepartments.AddRange(productionDepartments);
 
                 // ---------Article Types---------//   
                 var articleTypes = new List<ArticleType>()
@@ -26,10 +26,10 @@ namespace Persistence
                    new ArticleType{Name="Frame set"},
                    new ArticleType{Name="Frame element"}
                 };
-                await context.ArticleTypes.AddRangeAsync(articleTypes);
+                context.ArticleTypes.AddRange(articleTypes);
 
                 // ---------Stuffs---------//
-                var frameElement = context.ArticleTypes.FirstOrDefault(p => p.Name == "Frame element");
+                var frameElement = articleTypes[3];
                 var stuffs = new List<Stuff>()
                 {
                     new Stuff{Name="Chipboard 15mm", StuffCode=201, ArticleType=frameElement, ArticleTypeId=frameElement.Id},
@@ -48,8 +48,8 @@ namespace Persistence
                 // ---------Articles---------//
                 var finishedFurniture = articleTypes.FirstOrDefault(p => p.Name == "Finished furniture");
                 var frameSet = articleTypes.FirstOrDefault(p => p.Name == "Finished furniture");
-                var chipboard15mm=stuffs.FirstOrDefault(p=>p.Name=="Chipboard 15mm");
-                var coniferousLumber=stuffs.FirstOrDefault(p=>p.Name=="Coniferous lumber");
+                var chipboard15mm = stuffs.FirstOrDefault(p => p.Name == "Chipboard 15mm");
+                var coniferousLumber = stuffs.FirstOrDefault(p => p.Name == "Coniferous lumber");
 
                 var articles = new List<Article>
                 {
@@ -57,8 +57,8 @@ namespace Persistence
                     {
                         ArticleTypeId=finishedFurniture.Id,
                         ArticleType=finishedFurniture,
-                        FullName="OCEAN 2AL",
-                        NameWithoutFamilly="2AL",
+                        FullName="OCEAN 2ALR",
+                        NameWithoutFamilly="2ALR",
                         CreateDate=DateTime.Now,
                         EditDate=DateTime.Now,
                         CreatedInCompany=true,
@@ -81,8 +81,8 @@ namespace Persistence
                     {
                         ArticleTypeId=finishedFurniture.Id,
                         ArticleType=finishedFurniture,
-                        FullName="OCEAN AL",
-                        NameWithoutFamilly="AL",
+                        FullName="OCEAN ARM",
+                        NameWithoutFamilly="ARM",
                         CreateDate=DateTime.Now,
                         EditDate=DateTime.Now,
                         CreatedInCompany=true,
@@ -95,6 +95,16 @@ namespace Persistence
                         ArticleType=frameSet,
                         FullName="OCEAN 2 FRAME SET",
                         NameWithoutFamilly="OCEAN 2",
+                        CreateDate=DateTime.Now,
+                        EditDate=DateTime.Now,
+                        CreatedInCompany=true,
+                    },
+                    new Article
+                    {
+                        ArticleTypeId=frameSet.Id,
+                        ArticleType=frameSet,
+                        FullName="OCEAN ARM FRAME SET",
+                        NameWithoutFamilly="OCEAN ARM",
                         CreateDate=DateTime.Now,
                         EditDate=DateTime.Now,
                         CreatedInCompany=true,
@@ -169,11 +179,46 @@ namespace Persistence
                         Length=4000,
                         Width=3000,
                     },
+                    new Article
+                    {
+                        ArticleTypeId=frameSet.Id,
+                        ArticleType=frameSet,
+                        FullName="Frame set inside frame sete",
+                        CreateDate=DateTime.Now,
+                        EditDate=DateTime.Now,
+                        CreatedInCompany=true,
+                        StuffId=chipboard15mm.Id,
+                        Stuff=chipboard15mm,
+                        High=15,
+                        Length=2000,
+                        Width=2000,
+                    },
                 };
-                context.Articles.AddRange(articles);
+                foreach (var article in articles)
+                {
+                    context.Articles.Add(article);
+                }
 
-                
 
+                var articleRelationships = new List<ArticleArticle>
+                {
+                    new ArticleArticle(articles[0], articles[1],1,1),
+                    new ArticleArticle(articles[0], articles[2],2,2),
+                    new ArticleArticle(articles[1], articles[3],1,1),
+                    new ArticleArticle(articles[2], articles[4],2,1),
+                    new ArticleArticle(articles[3], articles[5],2,1),
+                    new ArticleArticle(articles[3], articles[6],2,2),
+                    new ArticleArticle(articles[3], articles[7],2,3),
+                    new ArticleArticle(articles[3], articles[8],2,4),
+                    new ArticleArticle(articles[3], articles[9],2,5),
+                    new ArticleArticle(articles[4], articles[5],3,1),
+                    new ArticleArticle(articles[4], articles[8],3,2),
+                    new ArticleArticle(articles[4], articles[10],2,3),
+                    new ArticleArticle(articles[10], articles[6],2,1),
+                    new ArticleArticle(articles[10], articles[7],1,2),
+                };
+                context.ArticleArticle.AddRange(articleRelationships);
+                context.SaveChanges();
 
                 // ---------Users---------//
                 var users = new List<AppUser>
