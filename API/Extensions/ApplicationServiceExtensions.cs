@@ -4,6 +4,9 @@ using Microsoft.OpenApi.Models;
 using Persistence;
 using Infrastructure;
 using Infrastructure.Security;
+using MediatR;
+using Application.ProductionDepartment;
+using Application.Core;
 
 namespace API.Extensions
 {
@@ -31,8 +34,8 @@ namespace API.Extensions
                         .WithOrigins("http://localhost:3000");
                 });
             });
-            // services.AddMediatR(typeof(List.Handler).Assembly);
-            // services.AddAutoMapper(typeof(MappingProfiles).Assembly);
+            services.AddMediatR(typeof(List.Handler).Assembly);
+            services.AddAutoMapper(typeof(MappingProfiles).Assembly);
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); 
             services.AddScoped<IUserAccessor, UserAccessor>();
             services.AddSignalR();
