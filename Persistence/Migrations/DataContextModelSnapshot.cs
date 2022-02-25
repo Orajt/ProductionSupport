@@ -156,7 +156,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("StuffId");
 
-                    b.ToTable("Articles");
+                    b.ToTable("Articles", (string)null);
                 });
 
             modelBuilder.Entity("Domain.ArticleArticle", b =>
@@ -180,7 +180,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("ArticleArticle");
+                    b.ToTable("ArticleArticle", (string)null);
                 });
 
             modelBuilder.Entity("Domain.ArticleFabricRealization", b =>
@@ -211,7 +211,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("ArticleId");
 
-                    b.ToTable("ArticleFabricRealizations");
+                    b.ToTable("ArticleFabricRealizations", (string)null);
                 });
 
             modelBuilder.Entity("Domain.ArticleFilePath", b =>
@@ -235,7 +235,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("ArticleId");
 
-                    b.ToTable("ArticlesFilesPaths");
+                    b.ToTable("ArticlesFilesPaths", (string)null);
                 });
 
             modelBuilder.Entity("Domain.ArticleProductionDepartment", b =>
@@ -253,7 +253,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("ProductionDepartmentId");
 
-                    b.ToTable("ArticlesDepartments");
+                    b.ToTable("ArticlesDepartments", (string)null);
                 });
 
             modelBuilder.Entity("Domain.ArticleType", b =>
@@ -267,7 +267,7 @@ namespace Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ArticleTypes");
+                    b.ToTable("ArticleTypes", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Company", b =>
@@ -287,7 +287,7 @@ namespace Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Companies");
+                    b.ToTable("Companies", (string)null);
                 });
 
             modelBuilder.Entity("Domain.CompanyArticle", b =>
@@ -311,7 +311,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("CompanyArticles");
+                    b.ToTable("CompanyArticles", (string)null);
                 });
 
             modelBuilder.Entity("Domain.DeliveryPlace", b =>
@@ -333,7 +333,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("CompanyID");
 
-                    b.ToTable("DeliveryPlaces");
+                    b.ToTable("DeliveryPlaces", (string)null);
                 });
 
             modelBuilder.Entity("Domain.FabricVariant", b =>
@@ -350,7 +350,7 @@ namespace Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FabricVariant");
+                    b.ToTable("FabricVariant", (string)null);
                 });
 
             modelBuilder.Entity("Domain.FabricVariantFabricGroupVariant", b =>
@@ -368,7 +368,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("FabricVariantId");
 
-                    b.ToTable("FabricVariantsGroupVariants");
+                    b.ToTable("FabricVariantsGroupVariants", (string)null);
                 });
 
             modelBuilder.Entity("Domain.FabricVariantGroup", b =>
@@ -382,7 +382,7 @@ namespace Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FabricVariantGroups");
+                    b.ToTable("FabricVariantGroups", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Familly", b =>
@@ -396,7 +396,7 @@ namespace Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Famillies");
+                    b.ToTable("Famillies", (string)null);
                 });
 
             modelBuilder.Entity("Domain.FamillyFabricVariantGroup", b =>
@@ -411,7 +411,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("FamillyId");
 
-                    b.ToTable("FamilliesFabricVarianGroups");
+                    b.ToTable("FamilliesFabricVarianGroups", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Order", b =>
@@ -442,7 +442,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("DeliveryPlaceId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("Domain.OrderPosition", b =>
@@ -487,7 +487,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderPositions");
+                    b.ToTable("OrderPositions", (string)null);
                 });
 
             modelBuilder.Entity("Domain.OrderPositionRealization", b =>
@@ -516,7 +516,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("VarriantId");
 
-                    b.ToTable("OrderPositionRealizations");
+                    b.ToTable("OrderPositionRealizations", (string)null);
                 });
 
             modelBuilder.Entity("Domain.ProductionDepartment", b =>
@@ -530,7 +530,7 @@ namespace Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProductionDepartments");
+                    b.ToTable("ProductionDepartments", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Stuff", b =>
@@ -552,7 +552,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("ArticleTypeId");
 
-                    b.ToTable("Stuffs");
+                    b.ToTable("Stuffs", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
