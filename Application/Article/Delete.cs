@@ -39,7 +39,7 @@ namespace Application.Article
 
                 if(article==null) return null;
                 
-                _context.ArticleArticle.RemoveRange(article.ChildRelations.Concat(article.ParentRelations));
+                _context.BulkDelete(article.ChildRelations.Concat(article.ParentRelations));
                 _context.Articles.Remove(article);
 
                 var result = await _context.SaveChangesAsync() > 0;

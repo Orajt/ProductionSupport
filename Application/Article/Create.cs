@@ -3,7 +3,9 @@ using Application.Core;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Persistence;
+
 
 namespace Application.Article
 {
@@ -43,7 +45,6 @@ namespace Application.Article
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-
                 var watch = new System.Diagnostics.Stopwatch();
                 watch.Start();
                 if (_context.Articles.Any(p => p.FullName.ToUpper() == request.FullName.ToUpper()
