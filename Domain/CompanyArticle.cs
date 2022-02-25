@@ -2,7 +2,7 @@ namespace Domain
 {
     public class CompanyArticle
     {
-           public int CompanyId { get; set; }
+        public int CompanyId { get; set; }
         public Company Company { get; set; }
         public int ArticleId { get; set; }
         public Article Article { get; set; }

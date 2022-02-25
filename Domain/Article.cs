@@ -31,5 +31,15 @@ namespace Domain
         public ICollection<ArticleFabricRealization> Realizations { get; set; } = new List<ArticleFabricRealization>();
         public virtual List <ArticleArticle> ChildRelations { get; set; }
         public virtual List <ArticleArticle> ParentRelations { get; set; }
+
+        public void CalculateCapacity()
+        {
+            if(this.Width!=0 & this.Length!=0)
+                this.Area=this.Width*this.Length;
+            if(this.Area!=0 && this.High!=0)
+                this.Capacity=this.Area*this.High;
+            return;
+            
+        }
     }
 }

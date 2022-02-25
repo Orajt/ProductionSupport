@@ -18,7 +18,8 @@ namespace API.Extensions
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
-        });
+                c.CustomSchemaIds(type=>type.ToString());
+            });
             services.AddDbContext<DataContext>(opt =>
             {
                 opt.UseSqlite(config.GetConnectionString("DefaultConnection"));
@@ -36,7 +37,7 @@ namespace API.Extensions
             });
             services.AddMediatR(typeof(List.Handler).Assembly);
             services.AddAutoMapper(typeof(MappingProfiles).Assembly);
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); 
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<IUserAccessor, UserAccessor>();
             services.AddSignalR();
 
