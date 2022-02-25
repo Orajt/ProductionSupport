@@ -9,14 +9,14 @@ namespace Domain
         public int ArticleTypeId { get; set; }
         public ArticleType ArticleType { get; set; }
         public int? FamillyId { get; set; }
-        public Familly? Familly { get; set; } 
+        public Familly Familly { get; set; } 
         public DateTime EditDate { get; set; }
         public DateTime CreateDate { get; set; }
         public int? StuffId { get; set; }
-        public Stuff? Stuff { get; set; }
+        public Stuff Stuff { get; set; }
         public int? FabricVariantGroupId { get; set; }
-        public FabricVariantGroup? FabricVariant { get; set; }
-        public ICollection<OrderPosition>? OrderPosition { get; set; }
+        public FabricVariantGroup FabricVariant { get; set; }
+        public ICollection<OrderPosition> OrderPosition { get; set; }
         public decimal Price { get; set; } = 0;
         public int Length { get; set; } = 0;
         public int Width { get; set; } = 0;
