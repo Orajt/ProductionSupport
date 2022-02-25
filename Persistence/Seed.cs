@@ -47,7 +47,7 @@ namespace Persistence
 
                 // ---------Articles---------//
                 var finishedFurniture = articleTypes.FirstOrDefault(p => p.Name == "Finished furniture");
-                var frameSet = articleTypes.FirstOrDefault(p => p.Name == "Finished furniture");
+                var frameSet = articleTypes.FirstOrDefault(p => p.Name == "Frame set");
                 var chipboard15mm = stuffs.FirstOrDefault(p => p.Name == "Chipboard 15mm");
                 var coniferousLumber = stuffs.FirstOrDefault(p => p.Name == "Coniferous lumber");
 
@@ -109,6 +109,7 @@ namespace Persistence
                         EditDate=DateTime.Now,
                         CreatedInCompany=true,
                     },
+                    
                     new Article
                     {
                         ArticleTypeId=frameElement.Id,
@@ -193,6 +194,47 @@ namespace Persistence
                         Length=2000,
                         Width=2000,
                     },
+                    new Article
+                    {
+                        ArticleTypeId=frameSet.Id,
+                        ArticleType=frameSet,
+                        FullName="RANDOM UPPER FRAME SET",
+                        NameWithoutFamilly="RUPFS",
+                        CreateDate=DateTime.Now,
+                        EditDate=DateTime.Now,
+                        CreatedInCompany=true,
+                    },
+                    new Article
+                    {
+                        ArticleTypeId=frameSet.Id,
+                        ArticleType=frameSet,
+                        FullName="RANDOM LOVER FRAME SET",
+                        NameWithoutFamilly="RLVFS",
+                        CreateDate=DateTime.Now,
+                        EditDate=DateTime.Now,
+                        CreatedInCompany=true,
+                    },
+                    new Article
+                    {
+                        ArticleTypeId=frameSet.Id,
+                        ArticleType=frameSet,
+                        FullName="RANDOM UPPER FRAME SET2",
+                        NameWithoutFamilly="RUPFS",
+                        CreateDate=DateTime.Now,
+                        EditDate=DateTime.Now,
+                        CreatedInCompany=true,
+                    },
+                    new Article
+                    {
+                        ArticleTypeId=finishedFurniture.Id,
+                        ArticleType=finishedFurniture,
+                        FullName="RANDOM SOFA",
+                        NameWithoutFamilly="RS",
+                        CreateDate=DateTime.Now,
+                        EditDate=DateTime.Now,
+                        CreatedInCompany=true,
+                    },
+                    
                 };
                 foreach (var article in articles)
                 {
@@ -216,6 +258,11 @@ namespace Persistence
                     new ArticleArticle(articles[4], articles[10],2,3),
                     new ArticleArticle(articles[10], articles[6],2,1),
                     new ArticleArticle(articles[10], articles[7],1,2),
+                    new ArticleArticle(articles[11], articles[12],1,1),
+                    new ArticleArticle(articles[12], articles[3],1,1),
+                    new ArticleArticle(articles[13], articles[12],1,1),
+                    new ArticleArticle(articles[14], articles[13],1,1),
+
                 };
                 context.ArticleArticle.AddRange(articleRelationships);
                 context.SaveChanges();
