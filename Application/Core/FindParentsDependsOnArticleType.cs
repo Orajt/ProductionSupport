@@ -34,9 +34,6 @@ namespace Application.Core
             if (PossibleArticles.Any(p => _requestIds.Contains(p)))
                 this.ArticleOnHigherLevel = true;
             await IsArticleOnHigherLevel(newParents);
-
-           
-
         }
 
 
