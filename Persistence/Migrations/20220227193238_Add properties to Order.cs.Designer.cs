@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence;
 
@@ -10,9 +11,10 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20220227193238_Add properties to Order.cs")]
+    partial class AddpropertiestoOrdercs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.2");
@@ -420,6 +422,9 @@ namespace Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime>("DateOfShipment")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("DeliveryPlaceId")
                         .HasColumnType("INTEGER");
 
@@ -436,9 +441,6 @@ namespace Persistence.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("ProductionDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("ShipmentDate")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -470,9 +472,6 @@ namespace Persistence.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("Last")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Lp")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("OrderId")
@@ -877,7 +876,7 @@ namespace Persistence.Migrations
                         .IsRequired();
 
                     b.HasOne("Domain.Order", "Order")
-                        .WithMany("OrderPositions")
+                        .WithMany("OrderPosition")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1035,7 +1034,7 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Order", b =>
                 {
-                    b.Navigation("OrderPositions");
+                    b.Navigation("OrderPosition");
                 });
 
             modelBuilder.Entity("Domain.OrderPosition", b =>
