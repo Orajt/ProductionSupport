@@ -11,7 +11,7 @@ namespace Application.Article
     {
         public class Query : IRequest<Result<List<ListDto>>>
         {
-
+            public int ArticleTypeId { get; set; }
         }
 
         public class Handler : IRequestHandler<Query, Result<List<ListDto>>>
@@ -26,7 +26,7 @@ namespace Application.Article
 
             public async Task<Result<List<ListDto>>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var articles = await _context.Articles
+                var articles = await _context.Articles.Where(p=>p.ArticleTypeId==request.ArticleTypeId)
                     .ProjectTo<ListDto>(_mapper.ConfigurationProvider)
                     .ToListAsync();
 

@@ -14,11 +14,10 @@ namespace Domain
         public int Quanity { get; set; }
         public string Realization { get; set; }
         public string Client { get; set; }
-        public bool First { get; set; }
-        public bool Last { get; set; }
-        public int SetId { get; set; }
+        public int Lp { get; set; }
+        public int? SetId { get; set; }
         public decimal FabricPirce { get; set; } = 0;
-        public string CalculatedRealization { get; set; }
+        public string CalculatedRealization { get; set; }="";
         public ICollection<OrderPositionRealization> Realizations { get; set; }=new List<OrderPositionRealization>();
     }
 }

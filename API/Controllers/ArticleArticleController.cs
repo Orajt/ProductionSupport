@@ -28,7 +28,5 @@ namespace API.Controllers
             Debug.WriteLine($"Execution time:{watch.ElapsedMilliseconds} milliseconds");
             return HandleResult(test);
         }
-
-
     }
 }

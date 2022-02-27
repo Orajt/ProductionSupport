@@ -109,7 +109,7 @@ namespace Persistence
                         EditDate=DateTime.Now,
                         CreatedInCompany=true,
                     },
-                    
+
                     new Article
                     {
                         ArticleTypeId=frameElement.Id,
@@ -234,7 +234,7 @@ namespace Persistence
                         EditDate=DateTime.Now,
                         CreatedInCompany=true,
                     },
-                    
+
                 };
                 foreach (var article in articles)
                 {
@@ -265,8 +265,65 @@ namespace Persistence
 
                 };
                 context.ArticleArticle.AddRange(articleRelationships);
-                context.SaveChanges();
 
+                var companies = new List<Company>()
+                {
+                    new Company{
+                        Name="Main dealer",
+                        CompanyIdentifier="123456789",
+                        Seller=false
+                    }
+                };
+                context.Companies.AddRange(companies);
+
+                var deliveryPlaces = new List<DeliveryPlace>(){
+                    new DeliveryPlace{
+                        DepotName="Main dealer's main depot",
+                        Adress="11-040 Random city, Random street 8",
+                        CompanyID=companies[0].Id,
+                        Company=companies[0]
+                    }
+                };
+                context.DeliveryPlaces.AddRange(deliveryPlaces);
+
+                var orders = new List<Order>(){
+                    new Order
+                    {
+                        Name="MD_1-22",
+                        EditDate=DateTime.Now,
+                        ShipmentDate=DateTime.Now.AddDays(14),
+                        ProductionDate=DateTime.Now.AddDays(7),
+                        DeliveryPlace=deliveryPlaces[0],
+                        DeliveryPlaceId=deliveryPlaces[0].Id
+                    }
+                };
+                context.Orders.AddRange(orders);
+
+                var orderPositions = new List<OrderPosition>()
+                {
+                    new OrderPosition{
+                        OrderId=orders[0].Id,
+                        Order=orders[0],
+                        ArticleId=articles[0].Id,
+                        Article=articles[0],
+                        Quanity=3,
+                        Realization="Random realization",
+                        Client="Random client",
+                        Lp=1
+                    },
+                     new OrderPosition{
+                        OrderId=orders[0].Id,
+                        Order=orders[0],
+                        ArticleId=articles[0].Id,
+                        Article=articles[0],
+                        Quanity=2,
+                        Realization="Random realization two",
+                        Client="Random client2",
+                        Lp=1
+                    }
+                };
+                context.OrderPositions.AddRange(orderPositions);
+                context.SaveChanges();
                 // ---------Users---------//
                 var users = new List<AppUser>
                 {

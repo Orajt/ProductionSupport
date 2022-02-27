@@ -5,10 +5,15 @@ namespace API.Controllers
 {
     public class ArticleController : BaseApiController
     {
-        [HttpGet]
-        public async Task<IActionResult> GetArticleList()
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetArticleList(int id)
         {
-            return HandleResult(await Mediator.Send(new List.Query()));
+            return HandleResult(await Mediator.Send(new List.Query(){ArticleTypeId=id}));
+        }
+        [HttpGet("{id}/reactSelect")]
+        public async Task<IActionResult> GetReactSelectInt(int id)
+        {
+            return HandleResult(await Mediator.Send(new ListReactSelect.Query(){ArticleTypeId=id}));
         }
         [HttpPost]
         public async Task<IActionResult> CreateArticle(Create.Command command)
