@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
-namespace Application.Core
+namespace Application.TreeHelpers
 {
     public class FindParentsDependsOnArticleType
     {
