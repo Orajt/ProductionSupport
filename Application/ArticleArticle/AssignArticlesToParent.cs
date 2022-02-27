@@ -27,7 +27,6 @@ namespace Application.ArticleArticle
                 RuleFor(x => x.ChildList).Must(list =>
                              ListHelpers.IsParametrUnique(list, "ChildId"))
                            .WithMessage("Childs should be unique");
-
             }
         }
 
@@ -43,7 +42,7 @@ namespace Application.ArticleArticle
             {
                 //Select all child ids
                 var childIds = request.ChildList.Select(p => p.ChildId).ToList();
-                var parent = await _context.Articles.FirstOrDefaultAsync(p => p.Id == request.ParentId);
+                var parent = await _context.Articles.Include(p=>p.ChildRelations).FirstOrDefaultAsync(p => p.Id == request.ParentId);
 
                 var possibleTypes = Relations.ArticleTypeRelations.Where(p=>p.Parent==parent.ArticleTypeId).Select(p=>p.Child).ToList();
                 possibleTypes.Add(parent.ArticleTypeId);
@@ -58,26 +57,37 @@ namespace Application.ArticleArticle
                     return Result<Unit>.Failure("One of used articles is on upper level than parent you want to assign");
 
                 //Get child elements from database
-                var childs = await _context.Articles.Where(t => childIds.Contains(t.Id)).ToListAsync();
+                var childsDB = await _context.Articles.Where(t => childIds.Contains(t.Id)).ToListAsync();
 
                 //Check if childs have correct type
-                if(!childs.Any(p=>possibleTypes.Contains(p.ArticleTypeId)))
+                if(!childsDB.Any(p=>possibleTypes.Contains(p.ArticleTypeId)))
                 {
                     return Result<Unit>.Failure("One type of used articles is incompatible to parent type");
                 }
 
-                //Create new relations
+                //Create new relations or edit if relation exists
                 var newRelations = new List<Domain.ArticleArticle>();
+                bool exisitnRelationsChaanged=false;
                 foreach (var child in request.ChildList)
                 {
-                    var childDB = childs.FirstOrDefault(p => p.Id == child.ChildId);
+                    var childDB = childsDB.FirstOrDefault(p => p.Id == child.ChildId);
                     if (childDB == null) return null;
-
+                    var existingChild = parent.ChildRelations.FirstOrDefault(p=>p.ChildId==child.ChildId);
+                    if(existingChild!=null)
+                    {
+                        existingChild.Quanity=child.Quanity;
+                        existingChild.PositionOnList=child.Position;
+                        exisitnRelationsChaanged=true;
+                        continue;
+                    }
                     newRelations.Add(new Domain.ArticleArticle(parent, childDB, child.Quanity, child.Position));
                 }
                 try
                 {
-                    await _context.BulkInsertAsync(newRelations);
+                    if(newRelations.Any())
+                        await _context.AddRangeAsync(newRelations);
+                    if(!exisitnRelationsChaanged)
+                        await _context.SaveChangesAsync();
                 }
                 catch (Exception)
                 {
