@@ -104,9 +104,6 @@ namespace Persistence.Migrations
                     b.Property<float>("Capacity")
                         .HasColumnType("REAL");
 
-                    b.Property<bool>("CompletedInCompany")
-                        .HasColumnType("INTEGER");
-
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("TEXT");
 
@@ -125,7 +122,10 @@ namespace Persistence.Migrations
                     b.Property<string>("FullName")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("HasInfluenceOnOrder")
+                    b.Property<bool>("HasChild")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("HasChildSameArticleType")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("High")
@@ -168,9 +168,6 @@ namespace Persistence.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("AddCol")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("PositionOnList")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Quanity")
@@ -466,12 +463,6 @@ namespace Persistence.Migrations
                     b.Property<decimal>("FabricPirce")
                         .HasColumnType("decimal(6,2)");
 
-                    b.Property<bool>("First")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("Last")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("Lp")
                         .HasColumnType("INTEGER");
 
@@ -484,7 +475,7 @@ namespace Persistence.Migrations
                     b.Property<string>("Realization")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("SetId")
+                    b.Property<int?>("SetId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");

@@ -24,7 +24,9 @@ namespace Persistence
                    new ArticleType{Name="Finished furniture"},
                    new ArticleType{Name="Accessories"},
                    new ArticleType{Name="Frame set"},
-                   new ArticleType{Name="Frame element"}
+                   new ArticleType{Name="Frame element"},
+                   new ArticleType{Name="Finished furniture set"},
+
                 };
                 context.ArticleTypes.AddRange(articleTypes);
 
