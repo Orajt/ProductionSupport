@@ -46,16 +46,15 @@ namespace Application.ArticleArticle
                 var parent = await _context.Articles.Include(p=>p.ChildRelations).FirstOrDefaultAsync(p => p.Id == request.ParentId);
 
                 var possibleTypes = Relations.ArticleTypeRelations.Where(p=>p.Parent==parent.ArticleTypeId).Select(p=>p.Child).ToList();
-                possibleTypes.Add(parent.ArticleTypeId);
 
                 if(childIds.Any(p=>p==parent.Id))
                     return Result<Unit>.Failure("You can't assign same articles");
 
                 //Check if any element of ChildList is on higher level than parent
-                var checkObject = new FindParentsDependsOnArticleType(childIds, _context, parent.ArticleTypeId);
-                await checkObject.IsArticleOnHigherLevel(new List<int> { parent.Id });
-                if (checkObject.ArticleOnHigherLevel == true)
-                    return Result<Unit>.Failure("One of used articles is on upper level than parent you want to assign");
+                // var checkObject = new FindParentsDependsOnArticleType(childIds, _context, parent.ArticleTypeId);
+                // await checkObject.IsArticleOnHigherLevel(new List<int> { parent.Id });
+                // if (checkObject.ArticleOnHigherLevel == true)
+                //     return Result<Unit>.Failure("One of used articles is on upper level than parent you want to assign");
 
                 //Get child elements from database
                 var childsDB = await _context.Articles.Where(t => childIds.Contains(t.Id)).ToListAsync();
@@ -68,7 +67,6 @@ namespace Application.ArticleArticle
 
                 //Create new relations or edit if relation exists
                 var newRelations = new List<Domain.ArticleArticle>();
-                bool exisitnRelationsChaanged=false;
                 foreach (var child in request.ChildList)
                 {
                     var childDB = childsDB.FirstOrDefault(p => p.Id == child.ChildId);
@@ -77,8 +75,6 @@ namespace Application.ArticleArticle
                     if(existingChild!=null)
                     {
                         existingChild.Quanity=child.Quanity;
-                        existingChild.PositionOnList=child.Position;
-                        exisitnRelationsChaanged=true;
                         continue;
                     }
                     newRelations.Add(new Domain.ArticleArticle(parent, childDB, child.Quanity, child.Position));
@@ -87,8 +83,8 @@ namespace Application.ArticleArticle
                 {
                     if(newRelations.Any())
                         await _context.AddRangeAsync(newRelations);
-                    if(!exisitnRelationsChaanged)
-                        await _context.SaveChangesAsync();
+
+                    await _context.SaveChangesAsync();
                 }
                 catch (Exception)
                 {

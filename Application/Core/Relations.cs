@@ -11,5 +11,13 @@ namespace Application.Core
             new ArticleTypeRelation(3,2),
             new ArticleTypeRelation(4,2),
         };
+        public static List<ArticleTypeComponents> ArticleTypeComponents = new List<ArticleTypeComponents>
+        {
+            new ArticleTypeComponents(1, true, false),
+            new ArticleTypeComponents(2, false, true),
+            new ArticleTypeComponents(3, true, true),
+            new ArticleTypeComponents(4, false, true),
+        };
+        
     }
 }
