@@ -284,7 +284,14 @@ namespace Persistence
                         Adress="11-040 Random city, Random street 8",
                         CompanyID=companies[0].Id,
                         Company=companies[0]
+                    },
+                    new DeliveryPlace{
+                        DepotName="Main dealer's second depot",
+                        Adress="11-040 Random city, Random street 8",
+                        CompanyID=companies[0].Id,
+                        Company=companies[0]
                     }
+
                 };
                 context.DeliveryPlaces.AddRange(deliveryPlaces);
 
@@ -325,7 +332,6 @@ namespace Persistence
                     }
                 };
                 context.OrderPositions.AddRange(orderPositions);
-                context.SaveChanges();
                 // ---------Users---------//
                 var users = new List<AppUser>
                 {
@@ -342,6 +348,7 @@ namespace Persistence
                 {
                     await userManager.CreateAsync(user, "Pa$$w0rd");
                 }
+                context.SaveChanges();
             }
         }
     }

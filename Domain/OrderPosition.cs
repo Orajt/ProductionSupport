@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain
 {
@@ -16,8 +17,10 @@ namespace Domain
         public string Client { get; set; }
         public int Lp { get; set; }
         public int? SetId { get; set; }
+        public Set Set{get;set;}
         public decimal FabricPirce { get; set; } = 0;
         public string CalculatedRealization { get; set; }="";
         public ICollection<OrderPositionRealization> Realizations { get; set; }=new List<OrderPositionRealization>();
+
     }
 }

@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Domain
 {
     public class DeliveryPlace
@@ -8,5 +10,12 @@ namespace Domain
         public int CompanyID { get; set; }
         public Company Company { get; set; }
         public ICollection<Order> Orders { get; set; } = new List<Order>();
+        [NotMapped]
+        public string NameWithCompany{
+            get{
+                return this.DepotName+$" ({this.Company.Name})";
+            }
+        }
+
     }
 }

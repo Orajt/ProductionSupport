@@ -32,6 +32,7 @@ public class DataContext : IdentityDbContext<AppUser>
     public DbSet<OrderPositionRealization> OrderPositionRealizations { get; set; }
     public DbSet<ProductionDepartment> ProductionDepartments { get; set; }
     public DbSet<Stuff> Stuffs { get; set; }
+    public DbSet<Set> Sets { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
