@@ -20,6 +20,11 @@ namespace API.Controllers
         {
             return HandleResult(await Mediator.Send(new CheckNameOrGetId.Query{Name=name, Predicate=predicate}));
         }
+        [HttpGet("summary/order/{predicate}")]
+        public async Task<IActionResult> GetOrderSummary(string name, string predicate)
+        {
+            return HandleResult(await Mediator.Send(new CheckNameOrGetId.Query{Name=name, Predicate=predicate}));
+        }
         [HttpPost]
         public async Task<IActionResult> Create(Create.Command command)
         {

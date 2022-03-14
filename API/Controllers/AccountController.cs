@@ -19,7 +19,6 @@ namespace API.Controllers
         private readonly SignInManager<AppUser> _signInManager;
         private readonly TokenService _tokenService;
         private readonly IConfiguration _config;
-        private readonly HttpClient _httpClient;
         public AccountController(UserManager<AppUser> userManager,
             SignInManager<AppUser> signInManager, TokenService tokenService,
             IConfiguration config)
@@ -28,10 +27,6 @@ namespace API.Controllers
             _tokenService = tokenService;
             _signInManager = signInManager;
             _userManager = userManager;
-            _httpClient = new HttpClient
-            {
-                BaseAddress = new System.Uri("https://graph.facebook.com")
-            };
         }
 
         [AllowAnonymous]
@@ -42,12 +37,9 @@ namespace API.Controllers
                 .FirstOrDefaultAsync(x => x.Email == loginDto.Email);
 
             if (user == null) return Unauthorized("Invalid email");
+            user.LockoutEnabled=false;
 
-            if (user.UserName == "bob") user.EmailConfirmed = true;
-
-            if (!user.EmailConfirmed) return Unauthorized("Email not confirmed");
-
-            var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
+            var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password,false);
 
             if (result.Succeeded)
             {
@@ -55,11 +47,6 @@ namespace API.Controllers
             }
 
             return Unauthorized("Invalid password");
-        }
-
-        private ActionResult<UserDto> Unauthorized(string v)
-        {
-            throw new NotImplementedException();
         }
 
         [AllowAnonymous]

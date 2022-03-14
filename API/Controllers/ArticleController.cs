@@ -10,10 +10,10 @@ namespace API.Controllers
         {
             return HandleResult(await Mediator.Send(new List.Query(){ArticleTypeId=id}));
         }
-        [HttpGet("{id}/reactSelect")]
-        public async Task<IActionResult> GetReactSelectInt(int id)
+        [HttpGet("{id}/{predicate}")]
+        public async Task<IActionResult> GetReactSelectInt(int id, string predicate)
         {
-            return HandleResult(await Mediator.Send(new ListReactSelect.Query(){ArticleTypeId=id}));
+            return HandleResult(await Mediator.Send(new ListReactSelect.Query(){ArticleTypeId=id, Predicate=predicate}));
         }
         [HttpPost]
         public async Task<IActionResult> CreateArticle(Create.Command command)
