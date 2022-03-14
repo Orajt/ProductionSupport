@@ -23,13 +23,17 @@ namespace Application.Article
 
             public async Task<Result<List<ReactSelectInt>>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var articleType = await _context.ArticleTypes.FirstOrDefaultAsync(p => p.Id == request.ArticleTypeId);
-                if (articleType == null) return null;
+                if(request.ArticleTypeId!=0)
+                {
+                    var articleType = await _context.ArticleTypes.FirstOrDefaultAsync(p => p.Id == request.ArticleTypeId);
+                    if (articleType == null) return null;
+                }
+               
                 var articlesRS = new List<ReactSelectInt>();
 
                 switch (request.Predicate)
                 {
-                    case "TO ASSIGN":
+                    case "TOASSIGN":
                         var possibleTypes = Core.Relations.ArticleTypeRelations.Where(p => p.Parent == request.ArticleTypeId).Select(p => p.Child).ToList();
                         articlesRS = await _context.Articles
                             .AsNoTracking()
@@ -37,8 +41,7 @@ namespace Application.Article
                             .Select(p => new ReactSelectInt { Label = p.FullName, Value = p.Id })
                             .ToListAsync();
                         break;
-
-                    case "FULL LIST":
+                    case "FULLLIST":
                         articlesRS = await _context.Articles
                             .AsNoTracking()
                             .Where(p => p.ArticleTypeId == request.ArticleTypeId)

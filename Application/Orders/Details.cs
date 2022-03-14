@@ -29,6 +29,7 @@ namespace Application.Orders
                 var order = await _context.Orders
                     .ProjectTo<DetailsDto>(_mapper.ConfigurationProvider)
                     .FirstOrDefaultAsync(p=>p.Id==request.Id);
+                order.OrderPositions=order.OrderPositions.OrderBy(p=>p.Client).ThenBy(p=>p.SetId).ThenBy(p=>p.Lp).ToList();
 
                 return Result<DetailsDto>.Success(order);
             }
