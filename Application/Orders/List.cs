@@ -4,16 +4,18 @@ using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
+using System.Linq.Dynamic.Core;
 
 namespace Application.Orders
 {
     public class List
     {
-        public class Query : IRequest<Result<List<ListDto>>>
+        public class Query : IRequest<Result<PagedList<ListDto>>>
         {
+            public PagingParams PagingParams{get;set;}
+            public List<FilterResult> Filters{get;set;}
         }
-
-        public class Handler : IRequestHandler<Query, Result<List<ListDto>>>
+        public class Handler : IRequestHandler<Query, Result<PagedList<ListDto>>>
         {
             private readonly DataContext _context;
             private readonly IMapper _mapper;
@@ -22,14 +24,26 @@ namespace Application.Orders
                 _mapper = mapper;
                 _context = context;
             }
-
-            public async Task<Result<List<ListDto>>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<Result<PagedList<ListDto>>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var articles = await _context.Orders.AsNoTracking()
-                    .ProjectTo<ListDto>(_mapper.ConfigurationProvider)
-                    .ToListAsync();
 
-                return Result<List<ListDto>>.Success(articles);
+                var queryString = ListHelpers.CreateQueryString(request.Filters);
+                var query =_context.Orders.ProjectTo<ListDto>(_mapper.ConfigurationProvider).AsQueryable();
+
+                if(!String.IsNullOrEmpty(queryString)){
+                    query=query.Where(queryString);
+                }
+
+                var result=await PagedList<ListDto>.CreateAsync(query, request.PagingParams.PageNumber,
+                        request.PagingParams.PageSize);
+                     
+                foreach(var el in result)
+                {
+                    el.EditDate=DateHelpers.SetDateTimeToCurrent(el.EditDate);
+                    el.ProductionDate=DateHelpers.SetDateTimeToCurrent(el.ProductionDate);
+                    el.ShipmentDate=DateHelpers.SetDateTimeToCurrent(el.ShipmentDate);
+                }
+                return Result<PagedList<ListDto>>.Success(result);
             }
         }
     }

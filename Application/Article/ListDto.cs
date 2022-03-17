@@ -6,8 +6,8 @@ namespace Application.Article
         public string FullName { get; set; }
         public string ArticleTypeName { get; set; }
         public string FamillyName{get;set;}
-        public string EditDate { get; set; }
-        public string CreateDate { get; set; }
+        public DateTime EditDate { get; set; }
+        public DateTime CreateDate { get; set; }
         public string StuffName{get;set;}
     }
 }

@@ -24,6 +24,9 @@ namespace Application.Orders
             {
                RuleFor(p=>p.Name).NotNull();
                RuleFor(p=>p.DeliveryPlaceId).NotNull();
+               RuleFor(p=>p.ShipmentDate).NotNull();
+               RuleFor(p=>p.ProductionDate).NotNull();
+
             }
         }
 
@@ -42,12 +45,13 @@ namespace Application.Orders
                     return Result<Unit>.Failure($"Order named {request.Name} exist in database");
 
                 var deliveryPlace=await _context.DeliveryPlaces.FirstOrDefaultAsync(p=>p.Id==request.DeliveryPlaceId);
+                if(deliveryPlace==null) return null;
 
                 var newOrder=new Domain.Order{
                     Name=request.Name,
                     EditDate=DateTime.Now,
-                    ShipmentDate=request.ShipmentDate,
-                    ProductionDate=request.ProductionDate,
+                    ShipmentDate=DateHelpers.SetDateOnlyDaysMonthYear(request.ShipmentDate),
+                    ProductionDate=DateHelpers.SetDateOnlyDaysMonthYear(request.ProductionDate),
                     DeliveryPlace=deliveryPlace,
                     DeliveryPlaceId=deliveryPlace.Id,                  
                 };

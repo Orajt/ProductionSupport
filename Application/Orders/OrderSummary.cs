@@ -9,12 +9,12 @@ namespace Application.Orders
 {
     public class OrderSummary
     {
-        public class Query : IRequest<Result<DetailsDto>>
+        public class Query : IRequest<Result<OrderSummaryDto>>
         {
-            public int Id { get; set; }
+            public string Predicate { get; set; }
         }
 
-        public class Handler : IRequestHandler<Query, Result<DetailsDto>>
+        public class Handler : IRequestHandler<Query, Result<OrderSummaryDto>>
         {
             private readonly DataContext _context;
             private readonly IMapper _mapper;
@@ -24,11 +24,23 @@ namespace Application.Orders
                 _context = context;
             }
 
-            public async Task<Result<DetailsDto>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<Result<OrderSummaryDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var order = await _context.Orders
+                var order = new DetailsDto();
+                int orderId=0;
+                if(int.TryParse(request.Predicate, out orderId))
+                {
+                    order= await _context.Orders
                     .ProjectTo<DetailsDto>(_mapper.ConfigurationProvider)
-                    .FirstOrDefaultAsync(p => p.Id == request.Id);
+                    .FirstOrDefaultAsync(p => p.Id == orderId);
+                }
+                if(orderId==0)
+                {
+                    order= await _context.Orders
+                    .ProjectTo<DetailsDto>(_mapper.ConfigurationProvider)
+                    .FirstOrDefaultAsync(p => p.Name.ToLower() == request.Predicate.ToLower());
+                }
+
                 order.OrderPositions = order.OrderPositions.OrderBy(p => p.Client).ThenBy(p => p.SetId).ThenBy(p => p.Lp).ToList();
 
                 var orderToReturn = _mapper.Map<OrderSummaryDto>(order);
@@ -47,14 +59,16 @@ namespace Application.Orders
                             var iteratedMember = groupSet.ElementAt(i);
                             if(i==0)
                             {
-                                setName+=iteratedMember.ArticleName;
+                                var quanityString=iteratedMember.Quanity>1 ? $"({iteratedMember.Quanity})" : "";
+                                setName+=iteratedMember.ArticleName+quanityString;
                                 continue;
                             }
                             var previousMember = groupSet.ElementAt(i-1);
                             if(iteratedMember.ArticleName.Contains(" ") && 
                             previousMember.ArticleTypeId==iteratedMember.ArticleTypeId)
                             {
-                                setName+=$"-{iteratedMember.ArticleName.Split(' ')[1]}";
+                                var quanityString=iteratedMember.Quanity>1 ? $"({iteratedMember.Quanity})" : "";
+                                setName+=$"-{iteratedMember.ArticleName.Split(' ')[1]}"+quanityString;
                                 continue;
                             }
                             if(previousMember.ArticleTypeId!=iteratedMember.ArticleTypeId){
@@ -70,7 +84,7 @@ namespace Application.Orders
                     }
                 }
 
-                return Result<DetailsDto>.Success(order);
+                return Result<OrderSummaryDto>.Success(orderToReturn);
             }
         }
     }

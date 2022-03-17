@@ -1,3 +1,4 @@
+using Application.Core;
 using Application.Orders;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,9 +7,9 @@ namespace API.Controllers
     public class OrderController : BaseApiController
     {
         [HttpGet]
-        public async Task<IActionResult> List()
+        public async Task<IActionResult> List([FromQuery] PagingParams pagingParams, [FromQuery] List<FilterResult> filters)
         {
-            return HandleResult(await Mediator.Send(new List.Query()));
+            return HandlePagedResult(await Mediator.Send(new List.Query(){PagingParams=pagingParams, Filters=filters}));
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> Details(int id)
@@ -21,9 +22,9 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(new CheckNameOrGetId.Query{Name=name, Predicate=predicate}));
         }
         [HttpGet("summary/order/{predicate}")]
-        public async Task<IActionResult> GetOrderSummary(string name, string predicate)
+        public async Task<IActionResult> GetOrderSummary(string predicate)
         {
-            return HandleResult(await Mediator.Send(new CheckNameOrGetId.Query{Name=name, Predicate=predicate}));
+            return HandleResult(await Mediator.Send(new OrderSummary.Query{Predicate=predicate}));
         }
         [HttpPost]
         public async Task<IActionResult> Create(Create.Command command)

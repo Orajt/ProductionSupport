@@ -1,14 +1,15 @@
 using Application.Article;
+using Application.Core;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
     public class ArticleController : BaseApiController
     {
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetArticleList(int id)
+        [HttpGet]
+        public async Task<IActionResult> GetArticleList([FromQuery] PagingParams pagingParams, [FromQuery] List<FilterResult> filters)
         {
-            return HandleResult(await Mediator.Send(new List.Query(){ArticleTypeId=id}));
+            return HandlePagedResult(await Mediator.Send(new List.Query(){PagingParams=pagingParams, Filters=filters}));
         }
         [HttpGet("{id}/{predicate}")]
         public async Task<IActionResult> GetReactSelectInt(int id, string predicate)
