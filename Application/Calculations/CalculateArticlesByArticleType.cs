@@ -23,7 +23,7 @@ namespace Application.Calculations
 
             public async Task<Result<List<CalculateArticlesBasedOnArticleTypeResult>>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var articleType = Relations.ArticleTypeComponents.FirstOrDefault(p=>p.ArticleTypeId==request.ArticleTypeId);
+                var articleType = Relations.ArticleProperties.FirstOrDefault(p=>p.ArticleTypeId==request.ArticleTypeId);
                 return Result<List<CalculateArticlesBasedOnArticleTypeResult>>.Success(await CalculateArticlesBasedOnArticleTypeId.CalculateArticles(0,1,request.ArticleTypeId,new List<CalculateArticlesBasedOnArticleTypeResult>(),_context, articleType.HasFamilly, articleType.HasStuff,true,request.OrderId));
             }
         }
