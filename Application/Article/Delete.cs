@@ -38,6 +38,9 @@ namespace Application.Article
                 .FirstOrDefaultAsync(p=>p.Id==request.Id);
 
                 if(article==null) return null;
+
+                if(await _context.OrderPositions.AnyAsync(p=>p.ArticleId==request.Id))
+                    Result<Unit>.Failure("You cant delete article that was ordered before");
                 
                 _context.RemoveRange(article.ChildRelations.Concat(article.ParentRelations));
                 _context.Articles.Remove(article);

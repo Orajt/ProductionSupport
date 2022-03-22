@@ -35,11 +35,24 @@ namespace Application.Article
                 {
                     case "TOASSIGN":
                         var possibleTypes = Core.Relations.ArticleTypeRelations.Where(p => p.Parent == request.ArticleTypeId).Select(p => p.Child).ToList();
-                        articlesRS = await _context.Articles
+                        var articles = await _context.Articles
                             .AsNoTracking()
+                            .Include(p=>p.Stuff)
+                            .Include(p=>p.Familly)
                             .Where(p => possibleTypes.Contains(p.ArticleTypeId))
-                            .Select(p => new ReactSelectInt { Label = p.FullName, Value = p.Id })
+                            .Select(p => new{p.Id, p.FullName, StuffName=p.Stuff.Name, FamillyName=p.Familly.Name})
                             .ToListAsync();
+                        foreach(var article in articles)
+                        {
+                            if(!String.IsNullOrEmpty(article.StuffName))
+                            {
+                                 articlesRS.Add(new ReactSelectInt(){Label=$"{article.FullName}({article.StuffName})", Value=article.Id});
+                                 continue;
+                            }
+                            if(!String.IsNullOrEmpty(article.FamillyName))
+                                articlesRS.Add(new ReactSelectInt(){Label=$"{article.FullName}({article.FamillyName})", Value=article.Id});
+
+                        }
                         break;
                     case "FULLLIST":
                         articlesRS = await _context.Articles

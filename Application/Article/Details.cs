@@ -9,9 +9,9 @@ namespace Application.Article
 {
     public class Details
     {
-        public class Query : IRequest<DetailsDto>
+        public class Query : IRequest<Result<DetailsDto>>
         {
-            public int ArticleId{get;set;}
+            public string ArticleIdentifier {get;set;}
         }
 
         public class Handler : IRequestHandler<Query, Result<DetailsDto>>
@@ -26,9 +26,22 @@ namespace Application.Article
 
             public async Task<Result<DetailsDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var article = await _context.Articles.ProjectTo<DetailsDto>(_mapper.ConfigurationProvider).FirstOrDefaultAsync(p=>p.Id==request.ArticleId);
-                
-                return Result<DetailsDto>.Success(_mapper.Map<DetailsDto>(article));
+                var article = new DetailsDto();
+                int articleId=0;
+                if(int.TryParse(request.ArticleIdentifier, out articleId))
+                {
+                    article = await _context.Articles.ProjectTo<DetailsDto>(_mapper.ConfigurationProvider).FirstOrDefaultAsync(p=>p.Id==articleId);
+                }
+                if(articleId==0)
+                    article = await _context.Articles.ProjectTo<DetailsDto>(_mapper.ConfigurationProvider).FirstOrDefaultAsync(p=>p.FamillyName.ToUpper()
+                    ==request.ArticleIdentifier.ToUpper());
+
+                if(article==null) return null;
+                article.EditDate=DateHelpers.SetDateTimeToCurrent(article.EditDate);
+                article.CreateDate=DateHelpers.SetDateTimeToCurrent(article.CreateDate);
+
+                article.AbleToEditPrimaries=!(await _context.OrderPositions.AnyAsync(p=>p.ArticleId==articleId));
+                return Result<DetailsDto>.Success(article);
             }
         }
     }

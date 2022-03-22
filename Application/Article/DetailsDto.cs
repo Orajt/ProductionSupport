@@ -4,7 +4,7 @@ namespace Application.Article
     {
         public int Id { get; set; }
         public string FullName { get; set; }
-        public string NameWithoutFamilly { get; set; }
+        public string NameWithoutFamilly { get; set; }="";
         public int ArticleTypeId { get; set; }
         public string ArticleTypeName { get; set; }
         public int? FamillyId { get; set; }
@@ -15,14 +15,14 @@ namespace Application.Article
         public string StuffName { get; set; }
         public int? FabricVariantGroupId { get; set; }
         public string FabricVariantGroupName  { get; set; }
-        public decimal Price { get; set; } = 0;
-        public int Length { get; set; } = 0;
-        public int Width { get; set; } = 0;
-        public int High { get; set; } = 0;
-        public float Area { get; set; } = 0;
-        public float Capacity { get; set; } = 0;
-        public bool CreatedInCompany { get; set; } = true;
-        public bool HasChild { get; set; } = false;
-        public bool HasChildSameArticleType { get; set; } = false;
+        public decimal Price { get; set; }
+        public int Length { get; set; }
+        public int Width { get; set; }
+        public int High { get; set; }
+        public float Area { get; set; }
+        public float Capacity { get; set; }
+        public bool CreatedInCompany { get; set; }
+        public bool AbleToEditPrimaries { get; set; }
+        public List<DetailsDtoChildArticles> ChildArticles{get;set;} = new List<DetailsDtoChildArticles>();
     }
 }
