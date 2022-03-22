@@ -7,14 +7,24 @@ namespace API.Controllers
     public class ArticleController : BaseApiController
     {
         [HttpGet]
-        public async Task<IActionResult> GetArticleList([FromQuery] PagingParams pagingParams, [FromQuery] List<FilterResult> filters)
+        public async Task<IActionResult> ArticleList([FromQuery] PagingParams pagingParams, [FromQuery] List<FilterResult> filters)
         {
             return HandlePagedResult(await Mediator.Send(new List.Query(){PagingParams=pagingParams, Filters=filters}));
         }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> ArticleDetails(string id)
+        {
+            return HandleResult(await Mediator.Send(new Details.Query(){ArticleIdentifier=id}));
+        }
         [HttpGet("{id}/{predicate}")]
-        public async Task<IActionResult> GetReactSelectInt(int id, string predicate)
+        public async Task<IActionResult> ReactSelectInt(int id, string predicate)
         {
             return HandleResult(await Mediator.Send(new ListReactSelect.Query(){ArticleTypeId=id, Predicate=predicate}));
+        }
+        [HttpGet("check/name/{name}")]
+        public async Task<IActionResult> CheckArticleName(string name, [FromQuery] string predicate, [FromQuery] int articleTypeId, [FromQuery] int? stuffId)
+        {
+            return HandleResult(await Mediator.Send(new CheckArticleNameOrGetId.Query(){ArticleName=name, Predicate=predicate, ArticleTypeId=articleTypeId, StuffId=stuffId}));
         }
         [HttpPost]
         public async Task<IActionResult> CreateArticle(Create.Command command)
