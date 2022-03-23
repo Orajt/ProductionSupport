@@ -1,0 +1,45 @@
+* [33m0a5eb1e[m[33m ([m[1;36mHEAD -> [m[1;32mfeature/create-actions-to-Company[m[33m, [m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m Fix forms on react-app, add loading properties to component state
+* [33m75cf6ce[m Create stuff actions
+* [33m71719a0[m Chaanges in stuff entity, delete stuffcode property
+* [33mbdb960d[m Create article controller
+* [33mfd1703b[m Create stuf actions
+* [33m41ccb16[m Create article actions
+* [33m20b2d3d[m Handle list articles in react-app
+* [33maf9cbca[m Finish touches to orders
+* [33me353503[m Configure react-app
+* [33m091ba86[m[33m ([m[1;32mfeature/handle-order-controller-actions-in-react[m[33m)[m Add packages to handle pdf create
+* [33mdc212d0[m Chaanges in gitignore to take care of react-app
+* [33maf3471a[m Chaanges in startup to handle put and delete requst from react app
+* [33m7a548ad[m Add sets entity to db
+* [33m88a0527[m Add dtos to actions
+* [33mfa58f45[m Necessary chaanges in Order actions
+* [33ma1eb9ea[m[33m ([m[1;32mfeature/calculation-controller-and-actons[m[33m, [m[1;32mbugfix/Article-controller-and-article-article-controller[m[33m, [m[1;32mCreate-components-in-react-to-handle-api-request[m[33m)[m new migrations.*
+* [33mb508a8f[m Add new articles in seed.cs to check if chaanges work
+* [33m8dbfa3d[m Accelerate speed
+* [33m7f2a774[m Chaanges in domain, remove unnecessary fields
+* [33mbbc3b4f[m Add controller and actions to Calculations
+* [33mabbeae5[m Chaanges in Data
+* [33m8b50f19[m[33m ([m[1;32mfeature/create-order-actions-and-controller[m[33m)[m Database chaanges sqlite files
+* [33m414360a[m Create order controller and actions
+* [33m9a2a032[m Chaanges in order.cs
+* [33m5ea2a88[m Chaange directory of FindParentsDependsOnArticleType.cs
+* [33m4ae7f58[m[33m ([m[1;32mfeature/delete-relations-between-articles[m[33m)[m Delete empty lines
+* [33m9e293a4[m Chaanges in gitignore
+* [33m79745f1[m Add Delete action to ArticleArticle controller
+* [33m8a6c5ba[m[33m ([m[1;32mfeature/fix-article-actions[m[33m)[m Delete nullable from csprojs and add some articles to Seed.cs to check if AssignAricleToParents works
+* [33m2198bb7[m Add ArticleArticleController and first action that creates realations
+* [33m9e9f946[m Delete unecessery migrations
+* [33m7bf7bc7[m Add calculate capacity to Article.cs
+* [33mb195fc5[m Fix chaanges in Article methods
+* [33md7241cf[m[33m ([m[1;32mfeature/article-controller-and-actions[m[33m, [m[1;32mfeature/accelerate-create-article[m[33m)[m Update gitigonore
+* [33ma5e09b0[m Add CalculateCapacity method to Domain.Article
+* [33m16a8719[m Create ArticleController
+* [33maba8d80[m Create basic actions to article
+*   [33mb49d4fa[m Merge branch 'feature/create-first-controllers' into main
+[32m|[m[33m\[m  
+[32m|[m * [33m88cd8c5[m[33m ([m[1;32mfeature/create-first-controllers[m[33m)[m Add controller ProductionDepartment and basic controller actions
+[32m|[m * [33m55f8cf4[m Add Mediatr and AutoMapper
+* [33m|[m [33mc07c63c[m DatabaseChaanges
+[33m|[m[33m/[m  
+* [33m9459654[m Fix seed.cs
+* [33m63d26fa[m Initial commit, database configurated, no controllers

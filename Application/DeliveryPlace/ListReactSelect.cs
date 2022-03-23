@@ -28,14 +28,14 @@ namespace Application.DeliveryPlace
                     case "SELLER":
                         deliveryPlaces = await _context.DeliveryPlaces.Include(p=>p.Company)
                             .AsNoTracking()
-                            .Where(p => p.Company.Seller==true)
+                            .Where(p => p.Company.Supplier==true)
                             .Select(p => new ReactSelectInt { Label = p.NameWithCompany, Value = p.Id })
                             .ToListAsync();
                         break;
                     case "DEALER":
                         deliveryPlaces = await _context.DeliveryPlaces.Include(p=>p.Company)
                             .AsNoTracking()
-                            .Where(p => p.Company.Seller==false)
+                            .Where(p => p.Company.Merchant==true)
                             .Select(p => new ReactSelectInt { Label = p.NameWithCompany, Value = p.Id })
                             .ToListAsync();
                         break;

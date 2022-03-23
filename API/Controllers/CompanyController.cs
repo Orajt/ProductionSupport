@@ -1,24 +1,24 @@
-using Application.DeliveryPlace;
+using Application.Company;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    public class DeliveryPlaceController : BaseApiController
+    public class CompanyController : BaseApiController
     {
-        [HttpGet("list/reactSelect")]
-        public async Task<IActionResult> GetReactSelectInt([FromQuery]string predicate)
+        [HttpGet]
+        public async Task<IActionResult> List()
         {
-            return HandleResult(await Mediator.Send(new ListReactSelect.Query(){Predicate=predicate}));
+            return HandleResult(await Mediator.Send(new List.Query()));
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> Details(int id)
         {
             return HandleResult(await Mediator.Send(new Details.Query(){Id=id}));
         }
-        [HttpGet]
-        public async Task<IActionResult> List(int id)
+        [HttpGet("reactSelect/{predicate}")]
+        public async Task<IActionResult> Details(string predicate)
         {
-            return HandleResult(await Mediator.Send(new List.Query()));
+            return HandleResult(await Mediator.Send(new ListReactSelect.Query(){Predicate=predicate}));
         }
         [HttpPost]
         public async Task<IActionResult> Create(Create.Command command)
@@ -26,11 +26,12 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(command));
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> Create(int id, Edit.Command command)
+        public async Task<IActionResult> Edit(int id, Edit.Command command)
         {
             command.Id=id;
             return HandleResult(await Mediator.Send(command));
         }
+
 
     }
 }

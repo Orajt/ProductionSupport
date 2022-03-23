@@ -7,7 +7,7 @@ using Persistence;
 
 namespace Application.ProductionDepartment
 {
-    public class List
+    public class ListReacSelect
     {
         public class Query : IRequest<Result<List<ReactSelectInt>>>
         {

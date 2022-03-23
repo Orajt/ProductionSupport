@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence;
 
@@ -10,9 +11,10 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20220322171808_Delivery place add specific infromation about adress")]
+    partial class Deliveryplaceaddspecificinfromationaboutadress
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.2");
@@ -830,7 +832,7 @@ namespace Persistence.Migrations
             modelBuilder.Entity("Domain.DeliveryPlace", b =>
                 {
                     b.HasOne("Domain.Company", "Company")
-                        .WithMany("DeliveryPlaces")
+                        .WithMany("DestinationPlaces")
                         .HasForeignKey("CompanyID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1029,7 +1031,7 @@ namespace Persistence.Migrations
                 {
                     b.Navigation("Articles");
 
-                    b.Navigation("DeliveryPlaces");
+                    b.Navigation("DestinationPlaces");
                 });
 
             modelBuilder.Entity("Domain.DeliveryPlace", b =>

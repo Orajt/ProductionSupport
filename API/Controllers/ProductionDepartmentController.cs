@@ -8,7 +8,7 @@ namespace API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetProductionDepartments()
         {
-            return HandleResult(await Mediator.Send(new List.Query()));
+            return HandleResult(await Mediator.Send(new ListReacSelect.Query()));
         }
         [HttpPost]
         public async Task<IActionResult> CreateProductionDepartment(Domain.ProductionDepartment productionDepartment)

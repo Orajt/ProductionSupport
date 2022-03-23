@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence;
 
@@ -10,9 +11,10 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20220322155717_Add Merchant Seller in company properties")]
+    partial class AddMerchantSellerincompanyproperties
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.2");
@@ -320,28 +322,13 @@ namespace Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("Apartment")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("City")
+                    b.Property<string>("Adress")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("CompanyID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Country")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("NumberOfBuilding")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("PostalCode")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Street")
+                    b.Property<string>("DepotName")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -830,7 +817,7 @@ namespace Persistence.Migrations
             modelBuilder.Entity("Domain.DeliveryPlace", b =>
                 {
                     b.HasOne("Domain.Company", "Company")
-                        .WithMany("DeliveryPlaces")
+                        .WithMany("DestinationPlaces")
                         .HasForeignKey("CompanyID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1029,7 +1016,7 @@ namespace Persistence.Migrations
                 {
                     b.Navigation("Articles");
 
-                    b.Navigation("DeliveryPlaces");
+                    b.Navigation("DestinationPlaces");
                 });
 
             modelBuilder.Entity("Domain.DeliveryPlace", b =>

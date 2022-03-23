@@ -273,21 +273,30 @@ namespace Persistence
                     new Company{
                         Name="Main dealer",
                         CompanyIdentifier="123456789",
-                        Seller=false
+                        Merchant=true,
+                        Supplier=false
                     }
                 };
                 context.Companies.AddRange(companies);
 
                 var deliveryPlaces = new List<DeliveryPlace>(){
                     new DeliveryPlace{
-                        DepotName="Main dealer's main depot",
-                        Adress="11-040 Random city, Random street 8",
+                        Name="Main dealer's main depot",
+                        Country="Random",
+                        City="Random city",
+                        Street="Random street",
+                        PostalCode="11-040",
+                        NumberOfBuilding=8,
                         CompanyID=companies[0].Id,
                         Company=companies[0]
                     },
                     new DeliveryPlace{
-                        DepotName="Main dealer's second depot",
-                        Adress="11-040 Random city, Random street 8",
+                        Name="Main dealer's second depot",
+                        Country="Random",
+                        City="Random city",
+                        Street="Random street",
+                        PostalCode="11-040",
+                        NumberOfBuilding=8,
                         CompanyID=companies[0].Id,
                         Company=companies[0]
                     }

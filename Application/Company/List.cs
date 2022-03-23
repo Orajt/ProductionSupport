@@ -5,12 +5,13 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
-namespace Application.Stuff
+namespace Application.Company
 {
     public class List
     {
         public class Query : IRequest<Result<List<ListDto>>>
         {
+            
         }
 
         public class Handler : IRequestHandler<Query, Result<List<ListDto>>>
@@ -25,13 +26,11 @@ namespace Application.Stuff
 
             public async Task<Result<List<ListDto>>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var stuffs = await _context.Stuffs
-                    .AsNoTracking()
-                    .ProjectTo<ListDto>(_mapper.ConfigurationProvider)
-                    .ToListAsync();
+                var companies = await _context.Companies.ProjectTo<ListDto>(_mapper.ConfigurationProvider).ToListAsync();
 
-                return Result<List<ListDto>>.Success(stuffs);
+                return Result<List<ListDto>>.Success(companies);
             }
         }
+
     }
 }

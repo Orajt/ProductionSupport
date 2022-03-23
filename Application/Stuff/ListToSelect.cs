@@ -5,7 +5,7 @@ using Persistence;
 
 namespace Application.Stuff
 {
-    public class ListRS
+    public class ListToSelect
     {
         public class Query : IRequest<Result<List<ListToSelectDto>>>
         {

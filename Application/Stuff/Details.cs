@@ -7,13 +7,14 @@ using Persistence;
 
 namespace Application.Stuff
 {
-    public class List
+    public class Details
     {
-        public class Query : IRequest<Result<List<ListDto>>>
+        public class Query : IRequest<Result<ListDto>>
         {
+            public int Id { get; set; }
         }
 
-        public class Handler : IRequestHandler<Query, Result<List<ListDto>>>
+        public class Handler : IRequestHandler<Query, Result<ListDto>>
         {
             private readonly DataContext _context;
             private readonly IMapper _mapper;
@@ -23,14 +24,14 @@ namespace Application.Stuff
                 _context = context;
             }
 
-            public async Task<Result<List<ListDto>>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<Result<ListDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var stuffs = await _context.Stuffs
+                var stuff = await _context.Stuffs
                     .AsNoTracking()
                     .ProjectTo<ListDto>(_mapper.ConfigurationProvider)
-                    .ToListAsync();
+                    .FirstOrDefaultAsync(p=>p.Id==request.Id);
 
-                return Result<List<ListDto>>.Success(stuffs);
+                return Result<ListDto>.Success(stuff);
             }
         }
     }
