@@ -1,6 +1,5 @@
 using Application.Core;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -11,7 +10,7 @@ namespace Application.Company
     {
         public class Query : IRequest<Result<DetailsDto>>
         {
-            public int Id { get; set; }
+            public string Id { get; set; }
         }
 
         public class Handler : IRequestHandler<Query, Result<DetailsDto>>
@@ -26,9 +25,31 @@ namespace Application.Company
 
             public async Task<Result<DetailsDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var companies = await _context.Companies.ProjectTo<DetailsDto>(_mapper.ConfigurationProvider).FirstOrDefaultAsync(p=>p.Id==request.Id);
+                Domain.Company company=null;
+                var companyId=0;
+                if(int.TryParse(request.Id, out companyId))
+                    company = await _context.Companies.Include(p=>p.DeliveryPlaces).FirstOrDefaultAsync(p=>p.Id==companyId);
+                if(companyId==0)
+                    company = await _context.Companies.Include(p=>p.DeliveryPlaces).FirstOrDefaultAsync(p=>p.Name==request.Id);
+                if(company==null) return null;
+                var result = new DetailsDto(){
+                    Id=company.Id,
+                    Name=company.Name,
+                    CompanyIdentifier=company.CompanyIdentifier,
+                    Supplier=company.Supplier,
+                    Merchant=company.Merchant
+                };
+                foreach(var deliveryPlace in company.DeliveryPlaces)
+                {
+                    result.DeliveryPlaces.Add(new DeliveryPlace.ListDto(){
+                        Id=deliveryPlace.Id,
+                        Name=deliveryPlace.Name,
+                        FullAdress=deliveryPlace.FullAdress,
+                        CompanyName=company.Name
+                    });
+                }
 
-                return Result<DetailsDto>.Success(companies);
+                return Result<DetailsDto>.Success(result);
             }
         }
     }

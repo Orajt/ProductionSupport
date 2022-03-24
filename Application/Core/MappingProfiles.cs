@@ -35,20 +35,17 @@ namespace Application.Core
                 .ForMember(d => d.DeliveryPlaceName, s => s.MapFrom(s => s.DeliveryPlace.Name));
             CreateMap<Orders.DetailsDto, Orders.OrderSummaryDto>();
 
+            /////////Delivery Place/////////
+            CreateMap<DeliveryPlace.Create.Command, Domain.DeliveryPlace>();
+            CreateMap<Domain.DeliveryPlace, DeliveryPlace.ListDto>()
+                .ForMember(d => d.CompanyName, s => s.MapFrom(s => s.Company.Name));
+            CreateMap<Domain.DeliveryPlace, DeliveryPlace.DetailsDto>()
+                  .ForMember(d => d.CompanyName, s => s.MapFrom(s => s.Company.Name));
             /////////Company/////////
             CreateMap<Domain.Company, Company.ListDto>();
             CreateMap<Domain.Company, Company.DetailsDto>()
                  .ForMember(d => d.DeliveryPlaces, s => s.MapFrom(s => s.DeliveryPlaces));
-
-            /////////Stuff/////////
-             CreateMap<Domain.Stuff, Stuff.ListDto>()
-                .ForMember(d => d.ArticleTypeName, s => s.MapFrom(s => s.ArticleType.Name)); 
-            
-            /////////Delivery Place/////////
-            CreateMap<DeliveryPlace.Create.Command, Domain.DeliveryPlace>();
-            CreateMap<Domain.DeliveryPlace, DeliveryPlace.ListDto>();
-            CreateMap<Domain.DeliveryPlace, DeliveryPlace.DetailsDto>()
-                  .ForMember(d => d.CompanyName, s => s.MapFrom(s => s.Company.Name)); 
+             
            
 
             

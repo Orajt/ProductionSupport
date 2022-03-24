@@ -34,10 +34,16 @@ namespace Persistence
                 var frameElement = articleTypes[3];
                 var stuffs = new List<Stuff>()
                 {
-                    new Stuff{Name="Chipboard 15mm", ArticleType=frameElement, ArticleTypeId=frameElement.Id},
-                    new Stuff{Name="Coniferous lumber", ArticleType=frameElement, ArticleTypeId=frameElement.Id},
+                    new Stuff{Name="Chipboard 15mm"},
+                    new Stuff{Name="Coniferous lumber"}
                 };
                 await context.Stuffs.AddRangeAsync(stuffs);
+                 // ---------ArticleTypesStuffs---------//
+                 var ArticleTypesStuffs = new List<ArticleTypeStuff>(){
+                     new ArticleTypeStuff{ArticleType=frameElement, ArticleTypeId=frameElement.Id, Stuff=stuffs[0], StuffId=stuffs[0].Id},
+                     new ArticleTypeStuff{ArticleType=frameElement, ArticleTypeId=frameElement.Id, Stuff=stuffs[1], StuffId=stuffs[1].Id}
+                 };
+                 await context.ArticleTypesStuffs.AddRangeAsync(ArticleTypesStuffs);
 
                 // ---------Families---------//
                 var families = new List<Familly>()

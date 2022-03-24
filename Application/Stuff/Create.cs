@@ -11,7 +11,6 @@ namespace Application.Stuff
         public class Command : IRequest<Result<Unit>>
         {
             public string Name { get; set; }
-            public int ArticleTypeId { get; set; }
         }
 
         public class CommandValidator : AbstractValidator<Command>
@@ -19,7 +18,6 @@ namespace Application.Stuff
             public CommandValidator()
             {
                RuleFor(p=>p.Name).NotNull();
-               RuleFor(p=>p.ArticleTypeId).GreaterThan(0);
             }
         }
 
@@ -33,15 +31,10 @@ namespace Application.Stuff
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                if(await _context.Stuffs.AnyAsync(p=>p.Name.ToUpper()==request.Name.ToUpper() && p.ArticleTypeId==request.ArticleTypeId))
+                if(await _context.Stuffs.AnyAsync(p=>p.Name.ToUpper()==request.Name.ToUpper()))
                     return Result<Unit>.Failure($"That stuff {request.Name} exist in database");
 
-                var articleType = await _context.ArticleTypes.FirstOrDefaultAsync(p=>p.Id==request.ArticleTypeId);
-                if(articleType==null) return null;
-
                 var newStuff = new Domain.Stuff{
-                    ArticleType=articleType,
-                    ArticleTypeId=articleType.Id,
                     Name=request.Name,  
                 };
 

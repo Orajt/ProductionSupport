@@ -51,10 +51,11 @@ namespace Application.Company
                         return Result<Unit>.Failure($"Company identifier exist in database");
                     company.Name=request.Name;
                 }
-                
+                company.Merchant=request.Merchant;
+                company.Supplier=request.Supplier;
                 var result = await _context.SaveChangesAsync() > 0;
 
-                if (!result) return Result<Unit>.Failure("Failed to create stuff");
+                if (!result) return Result<Unit>.Failure("Failed to edit company");
                 
                 return Result<Unit>.Success(Unit.Value);
             }

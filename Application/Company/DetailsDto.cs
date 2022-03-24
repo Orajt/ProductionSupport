@@ -7,7 +7,7 @@ namespace Application.Company
         public string CompanyIdentifier { get; set; } = "";
         public bool Supplier { get; set; }=false;
         public bool Merchant { get; set; }=false;
-        public List<DeliveryPlace.ListDto> DeliveryPlaces=new List<DeliveryPlace.ListDto>();
+        public List<DeliveryPlace.ListDto> DeliveryPlaces { get; set; }=new List<DeliveryPlace.ListDto>();
 
     }
 }

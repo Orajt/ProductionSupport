@@ -25,8 +25,9 @@ namespace Application.DeliveryPlace
 
             public async Task<Result<List<ListDto>>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var deliveryPlaces = await _context.DeliveryPlaces
+                var deliveryPlaces = await _context.DeliveryPlaces.Include(p=>p.Company)
                     .AsNoTracking()
+                    .OrderBy(p=>p.Company.Name).ThenBy(p=>p.Name)
                     .ProjectTo<ListDto>(_mapper.ConfigurationProvider)
                     .ToListAsync();
 

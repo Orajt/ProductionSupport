@@ -32,6 +32,7 @@ public class DataContext : IdentityDbContext<AppUser>
     public DbSet<OrderPositionRealization> OrderPositionRealizations { get; set; }
     public DbSet<ProductionDepartment> ProductionDepartments { get; set; }
     public DbSet<Stuff> Stuffs { get; set; }
+    public DbSet<ArticleTypeStuff> ArticleTypesStuffs { get; set; }
     public DbSet<Set> Sets { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -52,6 +53,7 @@ public class DataContext : IdentityDbContext<AppUser>
         modelBuilder.Entity<Article>()
             .Property(p => p.Price)
             .HasColumnType("decimal(6,2)");
+        modelBuilder.Entity<ArticleTypeStuff>(x => x.HasKey(mb => new { mb.ArticleTypeId, mb.StuffId }));
 
         modelBuilder.Entity<ArticleFilePath>()
             .HasOne(p => p.Article)

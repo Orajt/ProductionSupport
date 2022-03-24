@@ -30,6 +30,7 @@ namespace Application.DeliveryPlace
                             .AsNoTracking()
                             .Where(p => p.Company.Supplier==true)
                             .Select(p => new ReactSelectInt { Label = p.NameWithCompany, Value = p.Id })
+                            .OrderBy(p=>p.Label)
                             .ToListAsync();
                         break;
                     case "DEALER":
@@ -37,12 +38,14 @@ namespace Application.DeliveryPlace
                             .AsNoTracking()
                             .Where(p => p.Company.Merchant==true)
                             .Select(p => new ReactSelectInt { Label = p.NameWithCompany, Value = p.Id })
+                            .OrderBy(p=>p.Label)
                             .ToListAsync();
                         break;
                     case "ALL":
                         deliveryPlaces = await _context.DeliveryPlaces.Include(p=>p.Company)
                             .AsNoTracking()
                             .Select(p => new ReactSelectInt { Label = p.NameWithCompany, Value = p.Id })
+                            .OrderBy(p=>p.Label)
                             .ToListAsync();
                         break;
                     default:

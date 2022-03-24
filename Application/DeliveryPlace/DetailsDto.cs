@@ -11,6 +11,6 @@ namespace Application.DeliveryPlace
         public int NumberOfBuilding { get; set; }
         public int Apartment { get; set; } = 0;
         public int CompanyID { get; set; }
-        public int CompanyName { get; set; }
+        public string CompanyName { get; set; }
     }
 }

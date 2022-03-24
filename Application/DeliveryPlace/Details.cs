@@ -27,10 +27,11 @@ namespace Application.DeliveryPlace
             public async Task<Result<DetailsDto>> Handle(Query request, CancellationToken cancellationToken)
             {
                 var deliveryPlace = await _context.DeliveryPlaces
+                    .Include(p=>p.Company)
                     .AsNoTracking()
                     .ProjectTo<DetailsDto>(_mapper.ConfigurationProvider)
                     .FirstOrDefaultAsync(p=>p.Id==request.Id);
-
+                    
                 return Result<DetailsDto>.Success(deliveryPlace);
             }
         }

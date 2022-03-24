@@ -37,8 +37,7 @@ namespace Application.Stuff
 
                 if(stuff==null) return null;
 
-                if(await _context.Stuffs.AnyAsync(p=>p.Name.ToUpper()==request.Name.ToUpper() 
-                && p.ArticleTypeId==stuff.ArticleTypeId))
+                if(await _context.Stuffs.AnyAsync(p=>p.Name.ToUpper()==request.Name.ToUpper()))
                     return Result<Unit>.Failure($"That stuff {request.Name} exist in database");
 
                 stuff.Name=request.Name;
