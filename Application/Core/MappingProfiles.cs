@@ -41,11 +41,20 @@ namespace Application.Core
                 .ForMember(d => d.CompanyName, s => s.MapFrom(s => s.Company.Name));
             CreateMap<Domain.DeliveryPlace, DeliveryPlace.DetailsDto>()
                   .ForMember(d => d.CompanyName, s => s.MapFrom(s => s.Company.Name));
+
             /////////Company/////////
             CreateMap<Domain.Company, Company.ListDto>();
             CreateMap<Domain.Company, Company.DetailsDto>()
                  .ForMember(d => d.DeliveryPlaces, s => s.MapFrom(s => s.DeliveryPlaces));
-             
+            CreateMap<Domain.OrderPosition, OrderPosition.ListDto>()
+                .ForMember(d => d.OrderName, s => s.MapFrom(s => s.Order.Name))
+                .ForMember(d => d.ArticleFullName, s => s.MapFrom(s => s.Article.FullName))
+                .ForMember(d => d.ShipmentDate, s => s.MapFrom(s => s.Order.ShipmentDate))
+                .ForMember(d => d.ProductionDate, s => s.MapFrom(s => s.Order.ProductionDate))
+                .ForMember(d => d.ArticleTypeName, s => s.MapFrom(s => s.Article.ArticleType.Name))
+                .ForMember(d => d.FamillyName, s => s.MapFrom(s => s.Article.Familly!=null ? s.Article.Familly.Name : "None"))
+                .ForMember(d => d.StuffName, s => s.MapFrom(s => s.Article.Stuff!=null ? s.Article.Stuff.Name : "None"));
+            CreateMap<Domain.Stuff, Stuff.ListDto>(); 
            
 
             

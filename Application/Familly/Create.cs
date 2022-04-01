@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
-namespace Application.Stuff
+namespace Application.Familly
 {
     public class Create
     {
@@ -31,17 +31,17 @@ namespace Application.Stuff
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                if(await _context.Stuffs.AnyAsync(p=>p.Name.ToUpper()==request.Name.ToUpper()))
-                    return Result<Unit>.Failure($"Stuff {request.Name} exist in database");
+                if(await _context.Famillies.AnyAsync(p=>p.Name.ToUpper()==request.Name.ToUpper()))
+                    return Result<Unit>.Failure($"Familly {request.Name} exist in database");
 
-                var newStuff = new Domain.Stuff{
+                var newFamilly = new Domain.Familly{
                     Name=request.Name,  
                 };
 
-                _context.Stuffs.Add(newStuff);
+                _context.Famillies.Add(newFamilly);
                 var result = await _context.SaveChangesAsync() > 0;
 
-                if (!result) return Result<Unit>.Failure("Failed to create stuff");
+                if (!result) return Result<Unit>.Failure("Failed to create familly");
                 
                 return Result<Unit>.Success(Unit.Value);
             }

@@ -1,3 +1,4 @@
+using Application.Core;
 using Application.OrderPosition;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,5 +12,11 @@ namespace API.Controllers
             command.OrderId=id;
             return HandleResult(await Mediator.Send(command));
         }
+        [HttpGet]
+        public async Task<IActionResult> List([FromQuery] PagingParams pagingParams, [FromQuery] List<FilterResult> filters)
+        {
+            return HandlePagedResult(await Mediator.Send(new List.Query(){PagingParams=pagingParams, Filters=filters}));
+        }
+
     }
 }

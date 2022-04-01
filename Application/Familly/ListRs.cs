@@ -24,6 +24,7 @@ namespace Application.Familly
 
                 var familliesRS = await _context.Famillies
                     .AsNoTracking()
+                    .OrderBy(p=>p.Name)
                     .Select(p => new ReactSelectInt { Label = p.Name, Value = p.Id })
                     .ToListAsync();
 
