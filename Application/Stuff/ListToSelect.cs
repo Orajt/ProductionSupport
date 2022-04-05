@@ -22,13 +22,30 @@ namespace Application.Stuff
             public async Task<Result<List<ListToSelectDto>>> Handle(Query request, CancellationToken cancellationToken)
             {
 
-                var stuffs = await _context.ArticleTypesStuffs
-                    .Include(p=>p.Stuff)
+                var stuffs = await _context.Stuffs
+                    .Include(p => p.ArticleTypes)
+                    .OrderBy(p => p.Name)
                     .AsNoTracking()
-                    .Select(p => new ListToSelectDto{Label=p.Stuff.Name, Value=p.StuffId, ArticleTypeId=p.ArticleTypeId})
                     .ToListAsync();
-                
-                return Result<List<ListToSelectDto>>.Success(stuffs);
+
+                var result = new List<ListToSelectDto>();
+                foreach (var stuff in stuffs)
+                {
+                    var stuffToAdd = new ListToSelectDto();
+                    stuffToAdd.Value = stuff.Id;
+                    stuffToAdd.Label = stuff.Name;
+                    if (stuff.ArticleTypes != null && stuff.ArticleTypes.Count > 0)
+                    {
+                        foreach (var articleType in stuff.ArticleTypes)
+                        {
+                            stuffToAdd.ArticleTypesIds.Add(articleType.ArticleTypeId);
+                        }
+                    }
+                    result.Add(stuffToAdd);
+                }
+
+
+                return Result<List<ListToSelectDto>>.Success(result);
             }
         }
     }
