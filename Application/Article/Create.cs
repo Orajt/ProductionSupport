@@ -16,11 +16,11 @@ namespace Application.Article
             public string FullName { get; set; }
             public string NameWithoutFamilly { get; set; }
             public int ArticleTypeId { get; set; }
-            public int? FamillyId { get; set; }
-            public int? StuffId { get; set; }
-            public int? Length { get; set; }
-            public int? Width { get; set; }
-            public int? High { get; set; }
+            public int? FamillyId { get; set; }=0;
+            public int? StuffId { get; set; }=0;
+            public int Length { get; set; }
+            public int Width { get; set; }
+            public int High { get; set; }
             public bool CreatedInCompany { get; set; }
             public List<DetailsDtoChildArticles> ChildArticles { get; set; }
 
@@ -54,19 +54,22 @@ namespace Application.Article
                     return Result<Unit>.Failure("Article with choosen parameters exist in DataBase");
                 }
                 var articleType = await _context.ArticleTypes.FirstOrDefaultAsync(p => p.Id == request.ArticleTypeId);
-                if (articleType == null) return null;
+                if (articleType == null) 
+                    return null;
                 Domain.Familly familly = null;
                 Domain.Stuff stuff = null;
 
-                if (request.FamillyId != 0)
+                if (request.FamillyId!=null && request.FamillyId != 0)
                 {
                     familly = await _context.Famillies.FirstOrDefaultAsync(p => p.Id == request.FamillyId);
-                    if (familly == null) return null;
+                    if (familly == null) 
+                        return null;
                 }
-                if (request.StuffId != 0)
+                if (request.StuffId!=null && request.StuffId != 0)
                 {
                     stuff = await _context.Stuffs.FirstOrDefaultAsync(p => p.Id == request.StuffId);
-                    if (stuff == null) return null;
+                    if (stuff == null) 
+                        return null;
                 }
 
                 var properties = Relations.ArticleProperties.FirstOrDefault(p=>p.ArticleTypeId==articleType.Id);
@@ -88,9 +91,10 @@ namespace Application.Article
                     StuffId = properties.HasStuff ? stuff.Id : null,
                     EditDate = DateTime.Now,
                     CreateDate = DateTime.Now,
-                    Length = request.Length == null ? 0 : (int)request.Length,
-                    Width = request.Width == null ? 0 : (int)request.Width,
-                    High = request.High == null ? 0 : (int)request.High,
+                    Length = request.Length,
+                    Width = request.Width,
+                    High = request.High,
+                    CreatedInCompany=request.CreatedInCompany
 
                 };
 

@@ -7,5 +7,6 @@ namespace Application.Core
         public DateTime? DateValue{get;set;}=null;
         public string StringValue{get;set;}="";
         public string FilterOption{get;set;}="";
+        public bool? BooleanValue{get;set;}=null;
     }
 }

@@ -16,14 +16,6 @@ namespace Domain
         public Company Company { get; set; }
         public ICollection<Order> Orders { get; set; } = new List<Order>();
         [NotMapped]
-        public string NameWithCompany
-        {
-            get
-            {
-                return this.Name + $" ({this.Company.Name})";
-            }
-        }
-        [NotMapped]
         public string ShortAddress
         {
             get

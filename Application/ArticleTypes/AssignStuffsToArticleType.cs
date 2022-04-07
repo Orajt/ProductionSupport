@@ -47,6 +47,7 @@ namespace Application.ArticleTypes
                 {
                     var stuff=stuffsToAssign.FirstOrDefault(p=>p.Id==stuffId);
                     if(stuff==null) return null;
+                    if(articleType.Stuffs.Any(p=>p.StuffId==stuffId)) continue;
                     stuffListToAdd.Add(new Domain.ArticleTypeStuff{
                         ArticleType=articleType,
                         ArticleTypeId=articleType.Id,

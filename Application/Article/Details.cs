@@ -33,14 +33,17 @@ namespace Application.Article
                     article = await _context.Articles.ProjectTo<DetailsDto>(_mapper.ConfigurationProvider).FirstOrDefaultAsync(p=>p.Id==articleId);
                 }
                 if(articleId==0)
-                    article = await _context.Articles.ProjectTo<DetailsDto>(_mapper.ConfigurationProvider).FirstOrDefaultAsync(p=>p.FamillyName.ToUpper()
+                    article = await _context.Articles.ProjectTo<DetailsDto>(_mapper.ConfigurationProvider).LastOrDefaultAsync(p=>p.FullName.ToUpper()
                     ==request.ArticleIdentifier.ToUpper());
 
                 if(article==null) return null;
+
                 article.EditDate=DateHelpers.SetDateTimeToCurrent(article.EditDate);
                 article.CreateDate=DateHelpers.SetDateTimeToCurrent(article.CreateDate);
 
                 article.AbleToEditPrimaries=!(await _context.OrderPositions.AnyAsync(p=>p.ArticleId==articleId));
+                article.ChildArticles=article.ChildArticles.OrderBy(p=>p.ChildArticleName).ToList();
+                
                 return Result<DetailsDto>.Success(article);
             }
         }

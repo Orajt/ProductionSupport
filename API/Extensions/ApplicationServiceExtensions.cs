@@ -31,7 +31,8 @@ namespace API.Extensions
                     policy
                         .AllowAnyMethod()
                         .AllowAnyHeader()
-                        .AllowAnyOrigin();
+                        .AllowAnyOrigin()
+                        .WithExposedHeaders("Content-Disposition");
                 });
             });
             services.AddMediatR(typeof(ListReacSelect.Handler).Assembly);

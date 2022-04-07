@@ -22,37 +22,35 @@ namespace Application.DeliveryPlace
 
             public async Task<Result<List<ReactSelectInt>>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var deliveryPlaces = new List<ReactSelectInt>();
+                var result = new List<ReactSelectInt>();
+                var deliveryPlaces=new List<Domain.DeliveryPlace>();
                 switch (request.Predicate)
                 {
                     case "SELLER":
                         deliveryPlaces = await _context.DeliveryPlaces.Include(p=>p.Company)
-                            .AsNoTracking()
                             .Where(p => p.Company.Supplier==true)
-                            .Select(p => new ReactSelectInt { Label = p.NameWithCompany, Value = p.Id })
-                            .OrderBy(p=>p.Label)
+                            .OrderBy(p=>p.Name)
                             .ToListAsync();
                         break;
                     case "DEALER":
                         deliveryPlaces = await _context.DeliveryPlaces.Include(p=>p.Company)
-                            .AsNoTracking()
                             .Where(p => p.Company.Merchant==true)
-                            .Select(p => new ReactSelectInt { Label = p.NameWithCompany, Value = p.Id })
-                            .OrderBy(p=>p.Label)
+                            .OrderBy(p=>p.Name)
                             .ToListAsync();
                         break;
                     case "ALL":
                         deliveryPlaces = await _context.DeliveryPlaces.Include(p=>p.Company)
-                            .AsNoTracking()
-                            .Select(p => new ReactSelectInt { Label = p.NameWithCompany, Value = p.Id })
-                            .OrderBy(p=>p.Label)
+                            .OrderBy(p=>p.Name)
                             .ToListAsync();
                         break;
                     default:
                         return Result<List<ReactSelectInt>>.Failure("Choosen article type doesn't have any article assigned or predicate is wrong");
                 }
+                foreach(var deliveryPlace in deliveryPlaces){
+                    result.Add(new ReactSelectInt{Label=$"{deliveryPlace.Name}({deliveryPlace.Company.Name})", Value=deliveryPlace.Id});
+                }
 
-                return Result<List<ReactSelectInt>>.Success(deliveryPlaces);
+                return Result<List<ReactSelectInt>>.Success(result);
             }
         }
     }

@@ -50,51 +50,6 @@ namespace Application.Core
             {"LT","<="},
             {"CT","CT"}
         };
-        public static IQueryable<T> IntegerFilter<T>(IQueryable<T> collection, string property, string option, int value)
-        {
-            if (typeof(T).HasProperty(property))
-            {
-                // if (option == "GT")
-                //     // collection = collection.Where($"{property}==\"{value}\'");
-                if (option == "EQ")
-                    collection = collection.Where(p => (int)typeof(T).GetProperty(property).GetValue(p, null) == value);
-                if (option == "LT")
-                    collection = collection.Where(p => (int)typeof(T).GetProperty(property).GetValue(p, null) < value);
-                if (option == "EQLT")
-                    collection = collection.Where(p => (int)typeof(T).GetProperty(property).GetValue(p, null) <= value);
-                if (option == "EQGT")
-                    collection = collection.Where(p => (int)typeof(T).GetProperty(property).GetValue(p, null) <= value);
-            }
-            return collection;
-        }
-        public static IQueryable<T> DateFilter<T>(IQueryable<T> collection, string property, string option, DateTime value)
-        {
-            if (typeof(T).HasProperty(property))
-            {
-                if (option == "GT")
-                    collection = collection.Where(p => (DateTime)typeof(T).GetProperty(property).GetValue(p, null) > value);
-                if (option == "EQ")
-                    collection = collection.Where(p => (DateTime)typeof(T).GetProperty(property).GetValue(p, null) == value);
-                if (option == "LT")
-                    collection = collection.Where(p => (DateTime)typeof(T).GetProperty(property).GetValue(p, null) < value);
-                if (option == "EQLT")
-                    collection = collection.Where(p => (DateTime)typeof(T).GetProperty(property).GetValue(p, null) <= value);
-                if (option == "EQGT")
-                    collection = collection.Where(p => (DateTime)typeof(T).GetProperty(property).GetValue(p, null) <= value);
-
-            }
-
-            return collection;
-        }
-        public static IQueryable<T> StringFilter<T>(IQueryable<T> collection, string property, string option, string value)
-        {
-            if (typeof(T).HasProperty(property))
-            {
-                if (option == "CT")
-                    collection = collection.Where(p => typeof(T).GetProperty(property).GetValue(p, null).ToString().ToUpper().Contains(value.ToUpper()));
-            }
-            return collection;
-        }
         public static string CreateQueryString(List<FilterResult> filters)
         {
             var query="";
@@ -124,7 +79,11 @@ namespace Application.Core
                         var value=filter.StringValue.ToLower();
                         query+=$"{filter.PropertyName}.ToLower().Contains(\"{value}\")";
                         propertyFound=true;
-                    }         
+                    }
+                    if(propertyFound==false && filter.BooleanValue!=null){
+                        string opt=filter.BooleanValue==true ? "true" : "false";
+                        query+=$"{filter.PropertyName}=={opt}";
+                    }  
                 }
                 if(i<filters.Count-1)
                     query+=" && ";

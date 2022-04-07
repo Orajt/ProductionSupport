@@ -14,8 +14,8 @@ namespace Application.Article
             public int Id { get; set; }
             public string FullName { get; set; }
             public string NameWithoutFamilly { get; set; }
-            public int FamillyId { get; set; }
-            public int StuffId { get; set; }
+            public int? FamillyId { get; set; }
+            public int? StuffId { get; set; }
             public int Length { get; set; }
             public int Width { get; set; }
             public int High { get; set; }
@@ -45,9 +45,10 @@ namespace Application.Article
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var article = await _context.Articles.FirstOrDefaultAsync(p => p.Id == request.Id);
+                var article = await _context.Articles.Include(p=>p.ChildRelations).FirstOrDefaultAsync(p => p.Id == request.Id);
 
-                if (article == null) return null;
+                if (article == null) 
+                    return null;
 
                  if (_context.Articles.Any(p => p.FullName.ToUpper() == request.FullName.ToUpper()
                                              && p.ArticleTypeId == article.ArticleTypeId
@@ -60,17 +61,19 @@ namespace Application.Article
                 Domain.Familly familly = article.Familly;
                 Domain.Stuff stuff = article.Stuff;
 
-                if (request.FamillyId != 0 && request.FamillyId!=article.FamillyId)
+                if (request.FamillyId!= null && request.FamillyId != 0 && request.FamillyId!=article.FamillyId)
                 {
                     familly = await _context.Famillies.FirstOrDefaultAsync(p => p.Id == request.FamillyId);
-                    if (familly == null) return null;
+                    if (familly == null) 
+                        return null;
                     article.Familly=familly;
                     article.FamillyId=familly.Id;
                 }
-                if (request.StuffId != 0 && request.StuffId!=article.StuffId)
+                if (request.StuffId!= null && request.StuffId != 0 && request.StuffId!=article.StuffId)
                 {
                     stuff = await _context.Stuffs.FirstOrDefaultAsync(p => p.Id == request.StuffId);
-                    if (stuff == null) return null;
+                    if (stuff == null) 
+                        return null;
                     article.Stuff=stuff;
                     article.StuffId=stuff.Id;
                 }
@@ -92,7 +95,7 @@ namespace Application.Article
                 var articleComponents = article.ChildRelations.Where(p=>requestCompoentIds.Contains(p.ChildId)).ToList();
 
                 var newArticleIds=request.ChildArticles
-                    .Where(p=>articleComponents.Select(p=>p.ChildId).Contains(p.ChildId))
+                    .Where(p=>!articleComponents.Select(z=>z.ChildId).Contains(p.ChildId))
                     .Select(p=>p.ChildId).ToList();
                 
                 var newArticlesToAssign = await _context.Articles.Where(p=>newArticleIds.Contains(p.Id)).ToListAsync();
@@ -108,7 +111,8 @@ namespace Application.Article
                             continue;
                         }
                         var articleToAssign = newArticlesToAssign.FirstOrDefault(p=>p.Id==component.ChildId);
-                        if(articleToAssign==null) return null;
+                        if(articleToAssign==null) 
+                            return null;
                         articleDependenciesToAdd.Add(new Domain.ArticleArticle{
                             ParentArticle=article,
                             ParentId=article.Id,
