@@ -3,6 +3,7 @@ API/ProductionSupportWork.sqlite-shm
 API/ProductionSupportWork.sqlite
 API/ProductionSupportWork.sqlite-wal
 API/wwwroot/*
+my-app/*
 
 
 ## Ignore Visual Studio temporary files, build results, and
