@@ -32,9 +32,12 @@ namespace Application.Article
                 {
                     article = await _context.Articles.ProjectTo<DetailsDto>(_mapper.ConfigurationProvider).FirstOrDefaultAsync(p=>p.Id==articleId);
                 }
-                if(articleId==0)
-                    article = await _context.Articles.ProjectTo<DetailsDto>(_mapper.ConfigurationProvider).LastOrDefaultAsync(p=>p.FullName.ToUpper()
-                    ==request.ArticleIdentifier.ToUpper());
+                if(articleId==0){
+                    var articles = await _context.Articles.Where(p=>p.FullName.ToUpper()
+                     ==request.ArticleIdentifier.ToUpper()).ProjectTo<DetailsDto>(_mapper.ConfigurationProvider).ToListAsync();
+                     article=articles.Last();
+                }
+                  
 
                 if(article==null) return null;
 

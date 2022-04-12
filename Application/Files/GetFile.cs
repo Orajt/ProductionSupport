@@ -12,7 +12,8 @@ namespace Application.Files
     {
         public class Query : IRequest<Result<FileStreamResult>>
         {
-            public int Id { get; set; }
+            public string FileIdentifier { get; set; }
+            public string FileType { get; set; }
         }
 
         public class Handler : IRequestHandler<Query, Result<FileStreamResult>>
@@ -27,16 +28,26 @@ namespace Application.Files
 
             public async Task<Result<FileStreamResult>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var file = await _context.ArticlesFilesPaths.FirstOrDefaultAsync(p => p.Id == request.Id);
-                if(file==null)  return null;
-                var stream = new FileStream(_env.WebRootPath+file.Path, FileMode.Open, FileAccess.Read);
+                int id = 0;
+                Domain.ArticleFilePath file = null;
+                if (int.TryParse(request.FileIdentifier, out id))
+                {
+                    file = await _context.ArticlesFilesPaths.FirstOrDefaultAsync(p => p.Id == id && p.FileType==request.FileType);
+                }
+                if (id == 0)
+                {
+                    file = await _context.ArticlesFilesPaths.FirstOrDefaultAsync(p => p.FileName == request.FileIdentifier && p.FileType==request.FileType);
+                }
+
+                if (file == null) return null;
+                var stream = new FileStream(_env.WebRootPath + file.Path, FileMode.Open, FileAccess.Read);
                 string contentType = "image/jpeg";
                 if (file.FileType == "pdf")
                 {
-                    contentType="application/pdf";
+                    contentType = "application/pdf";
                 }
                 var result = new FileStreamResult(stream, contentType);
-                result.FileDownloadName=file.FileName;
+                result.FileDownloadName = file.FileName;
                 return Result<FileStreamResult>.Success(result);
             }
         }

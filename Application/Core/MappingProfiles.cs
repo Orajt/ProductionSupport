@@ -22,7 +22,7 @@ namespace Application.Core
                 .ForMember(d => d.StuffId, s => s.MapFrom(s => s.StuffId==null ? 0: s.StuffId))
                 .ForMember(d => d.FamillyId, s => s.MapFrom(s => s.FamillyId==null ? 0: s.FamillyId))
                 .ForMember(d => d.PdfFile, s => s.MapFrom(s => s.FilePaths.FirstOrDefault(p=>p.FileType=="pdf")))
-                .ForMember(d => d.Images, s => s.MapFrom(s => s.FilePaths.Where(p=>p.FileType=="jpg")))
+                .ForMember(d => d.Images, s => s.MapFrom(s => s.FilePaths.Where(p=>p.FileType=="thumb")))
                 .ForMember(d => d.ChildArticles, s => s.MapFrom(s => s.ChildRelations));
             
             CreateMap<Domain.ArticleArticle, Article.DetailsDtoChildArticles>()

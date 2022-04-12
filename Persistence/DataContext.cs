@@ -22,7 +22,7 @@ public class DataContext : IdentityDbContext<AppUser>
     public DbSet<Company> Companies { get; set; }
     public DbSet<CompanyArticle> CompanyArticles { get; set; }
     public DbSet<DeliveryPlace> DeliveryPlaces { get; set; }
-    public DbSet<FabricVariant> FabricVariant { get; set; }
+    public DbSet<FabricVariant> FabricVariants { get; set; }
     public DbSet<FabricVariantGroup> FabricVariantGroups { get; set; }
     public DbSet<FabricVariantFabricGroupVariant> FabricVariantsGroupVariants { get; set; }
     public DbSet<Familly> Famillies { get; set; }

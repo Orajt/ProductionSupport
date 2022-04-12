@@ -11,13 +11,20 @@ namespace API.Controllers
             command.ArticleId=id;
             return HandleResult(await Mediator.Send(command));
         }
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetPdf(int id)
+        [HttpPost("{id}")]
+        public async Task<IActionResult> ManageImages(int id, [FromForm] ManageImages.Command command)
         {
-            var result = await Mediator.Send(new GetFile.Query(){Id=id});
+            command.ArticleId=id;
+            return HandleResult(await Mediator.Send(command));
+        }
+        [HttpGet("{id}/{fileType}")]
+        public async Task<IActionResult> GetFile(string id, string fileType)
+        {
+            var result = await Mediator.Send(new GetFile.Query(){FileIdentifier=id, FileType=fileType});
             if(result == null) return NotFound();
             if(!result.IsSuccess)
                 return BadRequest(result.Error);
+            Response.Headers.Add("Access-Control-Expose-Headers","Content-Disposition");
             return result.Value;  
         }
         [HttpGet("list/reactSelect/{type}")]
