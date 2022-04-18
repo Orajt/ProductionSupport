@@ -31,6 +31,7 @@ namespace Application.Core
                 .ForMember(d => d.ChildArticleType, s => s.MapFrom(s => s.ChildArticle.ArticleType.Name))       
                 .ForMember(d => d.ChildArticleHasChild, s => s.MapFrom(s => s.ChildArticle.HasChild))
                 .ForMember(d => d.ChildId, s => s.MapFrom(s => s.ChildId));
+
             /////////Order/////////
              CreateMap<Domain.OrderPosition, OrderPosition.PositionDto>()
                 .ForMember(d => d.ArticleName, s => s.MapFrom(s => s.Article.FullName))
@@ -63,6 +64,9 @@ namespace Application.Core
                 .ForMember(d => d.FamillyName, s => s.MapFrom(s => s.Article.Familly!=null ? s.Article.Familly.Name : "None"))
                 .ForMember(d => d.StuffName, s => s.MapFrom(s => s.Article.Stuff!=null ? s.Article.Stuff.Name : "None"));
             CreateMap<Domain.Stuff, Stuff.ListDto>(); 
+
+            ////////Fabric variant//////////
+            CreateMap<Domain.FabricVariant, FabricVariant.DetailsDto>(); 
            
 
             

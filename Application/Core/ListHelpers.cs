@@ -68,10 +68,21 @@ namespace Application.Core
                     if(propertyFound==false && filter.DateValue!=null)
                     {
                         var dateValue=filter.DateValue.Value;
+                        dateValue=DateHelpers.SetDateTimeToCurrent(dateValue);
                         var year = dateValue.Year;
                         var month = dateValue.Month;
                         var day = dateValue.Day;
-                        query+=$"{filter.PropertyName}{option}DateTime({year},{month},{day})";
+                        int hour=0;
+                        int minute=0;
+                        int sec=0;
+                        if(option==">")
+                        {
+                            hour = 23;
+                            minute=59;
+                            sec=59;
+                        }
+                        query+=$"{filter.PropertyName}{option}DateTime({year},{month},{day},{hour},{minute},{sec})";
+                        
                         propertyFound=true;
                     }
                     if(propertyFound==false && !String.IsNullOrEmpty(filter.StringValue))

@@ -37,12 +37,12 @@ namespace Application.Orders
                 var result=await PagedList<ListDto>.CreateAsync(query, request.PagingParams.PageNumber,
                         request.PagingParams.PageSize);
                      
-                foreach(var el in result)
-                {
-                    el.EditDate=DateHelpers.SetDateTimeToCurrent(el.EditDate);
-                    el.ProductionDate=DateHelpers.SetDateTimeToCurrent(el.ProductionDate);
-                    el.ShipmentDate=DateHelpers.SetDateTimeToCurrent(el.ShipmentDate);
-                }
+                // foreach(var el in result)
+                // {
+                //     el.EditDate=DateHelpers.SetDateTimeToCurrent(el.EditDate);
+                //     el.ProductionDate=DateHelpers.SetDateTimeToCurrent(el.ProductionDate);
+                //     el.ShipmentDate=DateHelpers.SetDateTimeToCurrent(el.ShipmentDate);
+                // }
                 return Result<PagedList<ListDto>>.Success(result);
             }
         }

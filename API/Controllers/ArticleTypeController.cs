@@ -16,7 +16,7 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(new Details.Query(){ArticleTypeId=id}));
         }
         [HttpPost("{id}")]
-        public async Task<IActionResult> AssignStuffs(int id, AssignStuffsToArticleType.Command command)
+        public async Task<IActionResult> AssignStuffs(int id, ManageStuffs.Command command)
         {
             command.Id=id;
             return HandleResult(await Mediator.Send(command));

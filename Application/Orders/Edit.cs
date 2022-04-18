@@ -76,7 +76,6 @@ namespace Application.Orders
                         continue;
                     }
                     choosenPosition.Quanity=position.Quanity;
-                    choosenPosition.Realization=position.Realization;
                     choosenPosition.Lp=position.Lp;
                     choosenPosition.Quanity=position.Quanity;
                     choosenPosition.Client=position.Client;
@@ -112,11 +111,21 @@ namespace Application.Orders
                 }
                 var usedArticles= requestPositionsNew.Select(p=>p.ArticleId).ToList();
                 var groupedPositions = requestPositionsNew.OrderBy(p=>p.Client).ThenBy(p=>p.SetId).ThenBy(p=>p.Lp).GroupBy(p=>p.SetId).ToList();
+                var usedFabrics = request.OrderPositions.SelectMany(p=>p.FabricRealization).Select(p=>p.FabricId).Distinct().ToList();
+                usedArticles.AddRange(usedFabrics);
 
-                var articles = await _context.Articles.Where(p=>usedArticles.Contains(p.Id)).ToListAsync();
+                var articles = await _context.Articles
+                    .Include(p=>p.FabricVariant)
+                        .ThenInclude(p=>p.FabricVariants)
+                    .Where(p=>usedArticles.Contains(p.Id)).ToListAsync();
+                if(articles.Where(p=>p.ArticleTypeId==6).Count()!=usedFabrics.Count) return null;
+                var usedVariants=request.OrderPositions.SelectMany(p=>p.FabricRealization).Select(p=>p.Id).Distinct().ToList();
+
+                var variants= await _context.FabricVariants.Where(p=>usedVariants.Contains(p.Id)).ToListAsync();
+                if(usedVariants.Count!=variants.Count) return null;
 
                 var newPositionList = new List<Domain.OrderPosition>();
-
+                var newPositionRealizations= new List<Domain.OrderPositionRealization>();
                 foreach(var group in groupedPositions)
                 {
                     var set=new Set();
@@ -134,7 +143,12 @@ namespace Application.Orders
                     {
                         var article = articles.FirstOrDefault(p=>p.Id==position.ArticleId);
                         if(article==null) return null;
-                        newPositionList.Add(new Domain.OrderPosition
+                        if(article.ArticleTypeId==1)
+                        {
+                            if(article.FabricVariant.FabricVariants.Count!=position.FabricRealization.Count)
+                                return null;
+                        }
+                        var newPosition = new Domain.OrderPosition
                         {
                             Order=order,
                             OrderId=order.Id, 
@@ -146,12 +160,25 @@ namespace Application.Orders
                             SetId=set.Id,
                             Set=set,
                             Client=position.Client
-                        });
+                        };  
+                       
+                        foreach(var variant in position.FabricRealization)
+                        {
+                            newPositionRealizations.Add(new OrderPositionRealization{
+                                OrderPositionId=newPosition.Id,
+                                OrderPosition=newPosition,
+                                VarriantId=variant.Id,
+                                Variant=variants.FirstOrDefault(p=>p.Id==variant.Id),
+                                Fabric=articles.FirstOrDefault(p=>p.Id==variant.FabricId),
+                                FabricId=variant.FabricId,
+                                PlaceInGroup=variant.PlaceInGroup
+                            });
+                        }
+                        newPositionList.Add(newPosition);
                     }
                 }
-                var orderPositionAsList = order.OrderPositions.ToList();
-                orderPositionAsList.AddRange(newPositionList);
-                order.OrderPositions=orderPositionAsList;
+                _context.OrderPositions.AddRange(newPositionList);
+                _context.OrderPositionRealizations.AddRange(newPositionRealizations);
                 var result = await _context.SaveChangesAsync() > 0;
 
                 if (!result) return Result<Unit>.Failure("Failed to edit Order");

@@ -18,6 +18,7 @@ namespace Application.Article
             public int ArticleTypeId { get; set; }
             public int? FamillyId { get; set; }=0;
             public int? StuffId { get; set; }=0;
+            public int? fabricVariantGroupId { get; set; }=0;
             public int Length { get; set; }
             public int Width { get; set; }
             public int High { get; set; }
@@ -58,6 +59,7 @@ namespace Application.Article
                     return null;
                 Domain.Familly familly = null;
                 Domain.Stuff stuff = null;
+                Domain.FabricVariantGroup fvg = null;
 
                 if (request.FamillyId!=null && request.FamillyId != 0)
                 {
@@ -71,6 +73,12 @@ namespace Application.Article
                     if (stuff == null) 
                         return null;
                 }
+                if (request.fabricVariantGroupId!=null && request.fabricVariantGroupId != 0)
+                {
+                    fvg = await _context.FabricVariantGroups.FirstOrDefaultAsync(p => p.Id == request.fabricVariantGroupId);
+                    if (fvg == null) 
+                        return null;
+                }
 
                 var properties = Relations.ArticleProperties.FirstOrDefault(p=>p.ArticleTypeId==articleType.Id);
 
@@ -78,6 +86,8 @@ namespace Application.Article
                      return Result<Unit>.Failure("Article needs familly");
                 if(properties.HasStuff && stuff==null)
                      return Result<Unit>.Failure("Article needs stuff");
+                if(properties.HasFabicVariantGroup && fvg==null)
+                     return Result<Unit>.Failure("Article needs fabric variant group");
 
                 var article = new Domain.Article
                 {
@@ -89,6 +99,8 @@ namespace Application.Article
                     FamillyId = properties.HasFamilly ? familly.Id : null,
                     Stuff = properties.HasStuff ? stuff : null,
                     StuffId = properties.HasStuff ? stuff.Id : null,
+                    FabricVariant=properties.HasFabicVariantGroup? fvg : null,
+                    FabricVariantGroupId=properties.HasFabicVariantGroup? fvg.Id : null,
                     EditDate = DateTime.Now,
                     CreateDate = DateTime.Now,
                     Length = request.Length,

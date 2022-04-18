@@ -40,11 +40,11 @@ namespace Application.Article
                 var result=await PagedList<ListDto>.CreateAsync(articlesQuery, request.PagingParams.PageNumber,
                         request.PagingParams.PageSize);
 
-                foreach(var el in result)
-                {
-                    el.EditDate=DateHelpers.SetDateTimeToCurrent(el.EditDate);
-                    el.CreateDate=DateHelpers.SetDateTimeToCurrent(el.CreateDate);
-                }
+                // foreach(var el in result)
+                // {
+                //     el.EditDate=DateHelpers.SetDateTimeToCurrent(el.EditDate);
+                //     el.CreateDate=DateHelpers.SetDateTimeToCurrent(el.CreateDate);
+                // }
                 return Result<PagedList<ListDto>>.Success(result);
             }
         }

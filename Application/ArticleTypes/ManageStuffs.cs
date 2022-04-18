@@ -6,7 +6,7 @@ using Persistence;
 
 namespace Application.ArticleTypes
 {
-    public class AssignStuffsToArticleType
+    public class ManageStuffs
     {
         public class Command : IRequest<Result<Unit>>
         {

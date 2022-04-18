@@ -6,12 +6,13 @@ using Persistence;
 
 namespace Application.FabricVariant
 {
-    public class Create
+    public class Edit
     {
         public class Command : IRequest<Result<Unit>>
         {
+            public int Id { get; set; }
             public string FullName { get; set; }
-            public string ShortName{get;set;}
+            public string ShortName { get; set; }
         }
 
         public class CommandValidator : AbstractValidator<Command>
@@ -33,22 +34,21 @@ namespace Application.FabricVariant
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                if (await _context.FabricVariants.AnyAsync(p => p.FullName == request.FullName.ToUpper() || p.ShortName== request.ShortName.ToUpper()))
+                if (await _context.FabricVariants.AnyAsync(p => p.FullName == request.FullName.ToUpper() || p.ShortName == request.ShortName.ToUpper()))
                     return Result<Unit>.Failure($"Fabric variant named {request.FullName}, or shortname {request.ShortName} exists in database");
-
+                
                 if(request.ShortName.Length>3)  
                     return Result<Unit>.Failure($"Shortname max length is 3 characters");
+                
 
-                var newFabricVariant = new Domain.FabricVariant
-                {
-                    FullName = request.FullName.ToUpper(),
-                    ShortName = request.ShortName.ToUpper(),
-                };
+                var fabricVariant = await _context.FabricVariants.FirstOrDefaultAsync(p=>p.Id==request.Id);
 
-                _context.FabricVariants.Add(newFabricVariant);
+                fabricVariant.FullName=request.FullName.ToUpper();
+                fabricVariant.ShortName=request.ShortName.ToUpper();
+
                 var result = await _context.SaveChangesAsync() > 0;
 
-                if (!result) return Result<Unit>.Failure("Failed to create fabric variant");
+                if (!result) return Result<Unit>.Failure("Failed to edit fabric variant");
 
                 return Result<Unit>.Success(Unit.Value);
             }
