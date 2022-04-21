@@ -10,6 +10,11 @@ namespace API.Controllers
         {
             return HandleResult(await Mediator.Send(new ListToSelect.Query()));
         }
+        [HttpGet("list/reactSelect/{id}")]
+        public async Task<IActionResult> ListReactSelect(int id)
+        {
+            return HandleResult(await Mediator.Send(new ListReactSelect.Query(){ArticleTypeId=id}));
+        }
         [HttpGet]
         public async Task<IActionResult> List()
         {

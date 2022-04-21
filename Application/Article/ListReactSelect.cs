@@ -37,11 +37,13 @@ namespace Application.Article
                         var possibleTypes = Core.Relations.ArticleTypeRelations.Where(p => p.Parent == request.ArticleTypeId).Select(p => p.Child).ToList();
                         var articles = await _context.Articles
                             .AsNoTracking()
+                            .OrderBy(p=>p.FullName)
                             .Include(p=>p.Stuff)
                             .Include(p=>p.Familly)
                             .Where(p => possibleTypes.Contains(p.ArticleTypeId))
                             .Select(p => new{p.Id, p.FullName, StuffName=p.Stuff.Name, FamillyName=p.Familly.Name})
                             .ToListAsync();
+                        
                         foreach(var article in articles)
                         {
                             if(!String.IsNullOrEmpty(article.StuffName))
@@ -57,6 +59,7 @@ namespace Application.Article
                     case "FULLLIST":
                         articlesRS = await _context.Articles
                             .AsNoTracking()
+                            .OrderBy(p=>p.FullName)
                             .Where(p => p.ArticleTypeId == request.ArticleTypeId)
                             .Select(p => new ReactSelectInt { Label = p.FullName, Value = p.Id })
                             .ToListAsync();

@@ -1,7 +1,5 @@
 using Application.Core;
 using iText.Kernel.Pdf;
-using iText.IO.Image;
-using iText.Kernel.Colors;
 using iText.Kernel.Font;
 using iText.Kernel.Pdf.Canvas.Draw;
 using iText.Layout;
@@ -10,20 +8,19 @@ using iText.Layout.Properties;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
 
 namespace Application.Orders
 {
     public class OrderPrintout
     {
-        public class Query : IRequest<Result<OrderPrintoutResult>>
+        public class Query : IRequest<Result<MyFileResult>>
         {
             public int OrderId { get; set; }
             public int ArticleTypeId { get; set; }
         }
 
-        public class Handler : IRequestHandler<Query, Result<OrderPrintoutResult>>
+        public class Handler : IRequestHandler<Query, Result<MyFileResult>>
         {
             private readonly DataContext _context;
             private readonly IWebHostEnvironment _env;
@@ -33,7 +30,7 @@ namespace Application.Orders
                 _context = context;
             }
 
-            public async Task<Result<OrderPrintoutResult>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<Result<MyFileResult>> Handle(Query request, CancellationToken cancellationToken)
             {
                 var order = await _context.Orders
                     .Include(p => p.OrderPositions)
@@ -47,7 +44,7 @@ namespace Application.Orders
                 if (order == null) return null;
 
                 if (order.OrderPositions.Count == 0)
-                    return Result<OrderPrintoutResult>.Failure("Order doesn't contains positions");
+                    return Result<MyFileResult>.Failure("Order doesn't contains positions");
 
                 var articleTypesToGoThrough = new List<int>();
 
@@ -123,7 +120,10 @@ namespace Application.Orders
                     .SetFontSize(12);
 
                     var stuffName = group.First().Stuff;
-
+                    if(request.ArticleTypeId!=4)
+                    {
+                        stuffName="";
+                    }
                     Paragraph header = new Paragraph($"{stuffName} Order: {order.Name}")
                      .SetFont(normalFont)
                      .SetTextAlignment(TextAlignment.CENTER)
@@ -182,7 +182,7 @@ namespace Application.Orders
                 document.Close();
                 result = stream.ToArray();
 
-                return Result<OrderPrintoutResult>.Success(new OrderPrintoutResult { FileName = $"{order.Name}_artType_{articleType.Name}", File = result });
+                return Result<MyFileResult>.Success(new MyFileResult { FileName = $"{order.Name}_artType_{articleType.Name}", File = result });
 
             }
         }

@@ -31,6 +31,11 @@ namespace API.Controllers
         {
             return HandleResult(await Mediator.Send(command));
         }
+        [HttpPost("{id}")]
+        public async Task<IActionResult> Done(int id)
+        {
+            return HandleResult(await Mediator.Send(new OrderDone.Command(){OrderId=id}));
+        }
         [HttpPut("{id}")]
         public async Task<IActionResult> Edit(int id, Edit.Command command)
         {

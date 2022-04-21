@@ -40,7 +40,6 @@ namespace Application.Orders
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
                 
-
                 var order = await _context.Orders.Include(p=>p.OrderPositions).FirstOrDefaultAsync(p => p.Id == request.Id);
                 if(order==null) return null;
 
@@ -118,11 +117,13 @@ namespace Application.Orders
                     .Include(p=>p.FabricVariant)
                         .ThenInclude(p=>p.FabricVariants)
                     .Where(p=>usedArticles.Contains(p.Id)).ToListAsync();
-                if(articles.Where(p=>p.ArticleTypeId==6).Count()!=usedFabrics.Count) return null;
+
                 var usedVariants=request.OrderPositions.SelectMany(p=>p.FabricRealization).Select(p=>p.Id).Distinct().ToList();
 
                 var variants= await _context.FabricVariants.Where(p=>usedVariants.Contains(p.Id)).ToListAsync();
-                if(usedVariants.Count!=variants.Count) return null;
+
+                if(usedVariants.Count!=variants.Count) 
+                    return null;
 
                 var newPositionList = new List<Domain.OrderPosition>();
                 var newPositionRealizations= new List<Domain.OrderPositionRealization>();
@@ -162,7 +163,7 @@ namespace Application.Orders
                             Client=position.Client
                         };  
                        
-                        foreach(var variant in position.FabricRealization)
+                        foreach(var variant in position.FabricRealization.OrderBy(p=>p.PlaceInGroup))
                         {
                             newPositionRealizations.Add(new OrderPositionRealization{
                                 OrderPositionId=newPosition.Id,
@@ -177,6 +178,8 @@ namespace Application.Orders
                         newPositionList.Add(newPosition);
                     }
                 }
+                order.FabricsCalculated=false;
+                order.Done=false;
                 _context.OrderPositions.AddRange(newPositionList);
                 _context.OrderPositionRealizations.AddRange(newPositionRealizations);
                 var result = await _context.SaveChangesAsync() > 0;

@@ -26,7 +26,6 @@ namespace Application.Orders
                RuleFor(p=>p.DeliveryPlaceId).NotNull();
                RuleFor(p=>p.ShipmentDate).NotNull();
                RuleFor(p=>p.ProductionDate).NotNull();
-
             }
         }
 
@@ -58,9 +57,24 @@ namespace Application.Orders
 
                 _context.Orders.Add(newOrder);
                 var groupedPositions = request.OrderPositions.OrderBy(p=>p.Client).ThenBy(p=>p.SetId).ThenBy(p=>p.Lp).GroupBy(p=>p.SetId).ToList();
+
                 var articlesIds = request.OrderPositions.Select(p=>p.ArticleId).Distinct().OrderBy(p=>p).ToList();
-                var articles= await _context.Articles.Where(p=>articlesIds.Contains(p.Id)).ToListAsync();
+                var usedFabrics = request.OrderPositions.SelectMany(p=>p.FabricRealization).Select(p=>p.FabricId).Distinct().ToList();
+
+                articlesIds.AddRange(usedFabrics);
+
+                var articles= await _context.Articles
+                    .Include(p=>p.FabricVariant)
+                        .ThenInclude(p=>p.FabricVariants)
+                    .Where(p=>articlesIds.Contains(p.Id))
+                    .ToListAsync();
+                
+
+                var usedVariants=request.OrderPositions.SelectMany(p=>p.FabricRealization).Select(p=>p.Id).Distinct().ToList();
+                var variants= await _context.FabricVariants.Where(p=>usedVariants.Contains(p.Id)).ToListAsync();
                 var positionList = new List<Domain.OrderPosition>();
+                var positionRealizations= new List<Domain.OrderPositionRealization>();
+
                 foreach(var group in groupedPositions)
                 {
                     var set=new Set();
@@ -68,7 +82,7 @@ namespace Application.Orders
                     var lp=0;
                     foreach(var position in group)
                     {
-                        positionList.Add(new Domain.OrderPosition
+                        var newPosition = new Domain.OrderPosition
                         {
                             Order=newOrder,
                             OrderId=newOrder.Id, 
@@ -80,11 +94,26 @@ namespace Application.Orders
                             SetId=set.Id,
                             Set=set,
                             Client=position.Client
-                        });
+                        };
                         lp++;
+
+                        foreach(var variant in position.FabricRealization.OrderBy(p=>p.PlaceInGroup))
+                        {
+                            positionRealizations.Add(new OrderPositionRealization{
+                                OrderPositionId=newPosition.Id,
+                                OrderPosition=newPosition,
+                                VarriantId=variant.Id,
+                                Variant=variants.FirstOrDefault(p=>p.Id==variant.Id),
+                                Fabric=articles.FirstOrDefault(p=>p.Id==variant.FabricId),
+                                FabricId=variant.FabricId,
+                                PlaceInGroup=variant.PlaceInGroup
+                            });
+                        }
+                        positionList.Add(newPosition);
                     }
                 }
                 _context.OrderPositions.AddRange(positionList);
+                _context.OrderPositionRealizations.AddRange(positionRealizations);
 
                 var result = await _context.SaveChangesAsync() > 0;
 

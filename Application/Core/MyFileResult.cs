@@ -1,6 +1,6 @@
-namespace Application.Orders
+namespace Application.Core
 {
-    public class OrderPrintoutResult
+    public class MyFileResult
     {
         public string FileName { get; set; }
         public byte[] File { get; set; }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence;
 
@@ -10,9 +11,10 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20220420125343_Chaanges in entity articleFabricRealization")]
+    partial class ChaangesinentityarticleFabricRealization
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.2");
@@ -182,7 +184,7 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.ArticleFabricRealization", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -195,12 +197,23 @@ namespace Persistence.Migrations
                     b.Property<float>("FabricLength")
                         .HasColumnType("REAL");
 
+                    b.Property<int>("FabricVariantId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PlaceInGroup")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("StuffId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ArticleId");
+
+                    b.HasIndex("FabricVariantId");
 
                     b.HasIndex("StuffId");
 
@@ -795,6 +808,12 @@ namespace Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.FabricVariant", "FabricVariant")
+                        .WithMany()
+                        .HasForeignKey("FabricVariantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Domain.Stuff", "Stuff")
                         .WithMany()
                         .HasForeignKey("StuffId")
@@ -802,6 +821,8 @@ namespace Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Article");
+
+                    b.Navigation("FabricVariant");
 
                     b.Navigation("Stuff");
                 });

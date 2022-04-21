@@ -34,6 +34,7 @@ public class DataContext : IdentityDbContext<AppUser>
     public DbSet<Stuff> Stuffs { get; set; }
     public DbSet<ArticleTypeStuff> ArticleTypesStuffs { get; set; }
     public DbSet<Set> Sets { get; set; }
+    public DbSet<ArticleFabricRealizationGroup> ArticleFabricRealizationsGroups{get;set;}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
