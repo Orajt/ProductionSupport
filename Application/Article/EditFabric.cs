@@ -50,6 +50,7 @@ namespace Application.Article
                 fabric.FullName=request.FullName;
                 fabric.NameWithoutFamilly=request.FullName;
                 fabric.StuffId=request.StuffId;
+                fabric.EditDate=DateTime.Now.Date;
 
                 var result = await _context.SaveChangesAsync() > 0;
 

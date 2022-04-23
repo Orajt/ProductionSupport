@@ -42,13 +42,14 @@ namespace Application.Article
                 var stuff = await _context.Stuffs.FirstOrDefaultAsync(p=>p.Id==request.StuffId);
                 if(stuff==null) return null;
 
+                var date = DateTime.Now.Date;
                 var article = new Domain.Article
                 {
                     FullName = request.FullName,
                     NameWithoutFamilly = request.FullName,
                     ArticleTypeId = 6,
-                    EditDate = DateTime.Now,
-                    CreateDate = DateTime.Now,
+                    EditDate = date,
+                    CreateDate = date,
                     CreatedInCompany=false,
                     HasChild=false,
                     Stuff=stuff,

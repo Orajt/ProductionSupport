@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using Image = SixLabors.ImageSharp.Image;
 
 namespace Application.Files
 {
@@ -72,6 +75,7 @@ namespace Application.Files
                         {
                             var exisitingFile = ImgFiles.FirstOrDefault(p => p.Name == fileName);
                             var shortPath = exisitingFile.FullName.Substring(_env.WebRootPath.Length);
+                            var thumbShortPath = @"\images\"+"th_"+ exisitingFile.Name;
                             if (exisitingFile == null) return null;
 
                             filesToAssign.Add(new Domain.ArticleFilePath()
@@ -88,7 +92,7 @@ namespace Application.Files
                                 FileName = fileName,
                                 Article = article,
                                 ArticleId = article.Id,
-                                Path = shortPath.Replace(".jpg", ".thumb")
+                                Path = thumbShortPath
                             });
                         }
                     }
@@ -106,20 +110,47 @@ namespace Application.Files
                                 return Result<Unit>.Failure("Image filenames last 3 characters should be jpg");
 
                             var filePath = imagesFolderPath + @$"\{file.FileName}";
+                            var thumbPath = imagesFolderPath + @$"\th_{file.FileName}";
                             var oldFile = article.FilePaths.FirstOrDefault(p => p.FileName == file.FileName);
 
                             if (oldFile == null)
                             {
                                 if (ImgFiles.Any(p => p.Name == file.Name))
                                     return Result<Unit>.Failure($"File named {file.FileName} exists in database");
-                                var thumbPath = Path.ChangeExtension(filePath, "thumb");
-                                using (var stream = System.IO.File.Create(filePath))
+
+                                if (file == null || file.Length == 0)
                                 {
-                                    await file.CopyToAsync(stream);
-                                    var thumbImage=FileHelpers.GetReducedImage(120,120,stream);
-                                    thumbImage.Save(thumbPath);
-                                    thumbImage.Dispose();
+                                    return null;
                                 }
+                                using (var memoryStream = new MemoryStream())
+                                {
+                                    file.CopyTo(memoryStream);
+                                    memoryStream.Position=0;
+                                    using (var img = Image.Load(memoryStream))
+                                    {
+                                        bool imageSaved = false;
+                                       var mutateScale = (int)Math.Floor((decimal)img.Width/1024);
+                                       if(mutateScale>1)
+                                       {
+                                           img.Mutate(x=>x.Resize(img.Width/mutateScale, img.Height/mutateScale));
+                                           img.Save(filePath);
+                                           imageSaved=true;
+                                       }
+                                       if(!imageSaved)
+                                            img.Save(filePath);
+                                        img.Mutate(x=>x.Resize(120,120));
+                                        img.Save(thumbPath);
+                                    }
+                                }
+
+                                // using (var stream = System.IO.File.Create(filePath))
+                                // {
+
+                                //     await file.CopyToAsync(stream);
+                                //     var thumbImage = FileHelpers.GetReducedImage(120, 120, stream);
+                                //     thumbImage.Save(thumbPath);
+                                //     thumbImage.Dispose();
+                                // }
 
                                 filesToAssign.Add(new Domain.ArticleFilePath()
                                 {
@@ -135,7 +166,7 @@ namespace Application.Files
                                     FileName = file.FileName,
                                     Article = article,
                                     ArticleId = article.Id,
-                                    Path = @"\images\" + Path.GetFileName(thumbPath)
+                                    Path = @"\images\th_" + file.FileName
                                 });
                             }
                         }

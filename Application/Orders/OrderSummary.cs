@@ -28,7 +28,6 @@ namespace Application.Orders
             {
                 var order = new DetailsDto();
                 int orderId=0;
-                var gowno = await _context.Orders.Include(p=>p.OrderPositions).ThenInclude(p=>p.Realizations).FirstOrDefaultAsync(p=>p.Id==int.Parse(request.Predicate));
                 if(int.TryParse(request.Predicate, out orderId))
                 {
                     order= await _context.Orders

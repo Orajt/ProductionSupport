@@ -48,9 +48,9 @@ namespace Application.Orders
 
                 var newOrder=new Domain.Order{
                     Name=request.Name,
-                    EditDate=DateTime.Now,
-                    ShipmentDate=DateHelpers.SetDateOnlyDaysMonthYear(request.ShipmentDate),
-                    ProductionDate=DateHelpers.SetDateOnlyDaysMonthYear(request.ProductionDate),
+                    EditDate=DateHelpers.SetDateTimeToCurrent(DateTime.Now).Date,
+                    ShipmentDate=DateHelpers.SetDateTimeToCurrent(request.ShipmentDate).Date,
+                    ProductionDate=DateHelpers.SetDateTimeToCurrent(request.ProductionDate).Date,
                     DeliveryPlace=deliveryPlace,
                     DeliveryPlaceId=deliveryPlace.Id,                  
                 };

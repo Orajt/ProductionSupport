@@ -55,9 +55,9 @@ namespace Application.Orders
                 }
 
                 order.Name = request.Name;
-                order.EditDate = DateTime.Now;
-                order.ShipmentDate = request.ShipmentDate;
-                order.ProductionDate = request.ProductionDate;
+                order.EditDate = DateHelpers.SetDateTimeToCurrent(DateTime.Now).Date;
+                order.ShipmentDate = request.ShipmentDate.Date;
+                order.ProductionDate = request.ProductionDate.Date;
 
                 var requestPositionsInDB = request.OrderPositions.Where(p=>p.Id!=0).ToList();
                 var requestPositionsNew = request.OrderPositions.Where(p=>p.Id==0).ToList();

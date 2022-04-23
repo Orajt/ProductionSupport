@@ -43,11 +43,8 @@ namespace API
             app.UseDefaultFiles();
             app.UseStaticFiles();
 
-
-
             app.UseAuthentication();
             app.UseAuthorization();
-
 
             app.UseEndpoints(endpoints =>
             {

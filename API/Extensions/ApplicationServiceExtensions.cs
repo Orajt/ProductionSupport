@@ -32,7 +32,6 @@ namespace API.Extensions
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowAnyOrigin();
-                        // .WithExposedHeaders("Content-Disposition");
                 });
             });
             services.AddMediatR(typeof(ListReacSelect.Handler).Assembly);

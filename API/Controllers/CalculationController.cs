@@ -25,18 +25,12 @@ namespace API.Controllers
             Response.Headers.Add("Access-Control-Expose-Headers","Content-Disposition");
             return fileStreamResult;
         }
-        [HttpGet("{orderId}")]
-        public async Task<IActionResult> CalculateFabrics(int orderId)
-        {
-            var result = await Mediator.Send(new Application.Calculation.CalculateFabrics.Query{OrderId=orderId});
-            if(result == null) return NotFound();
-            if(!result.IsSuccess)
-                return BadRequest(result.Error);
-            var fileStreamResult = new FileStreamResult(new MemoryStream(result.Value.File), "application/pdf");
-            fileStreamResult.FileDownloadName=result.Value.FileName;
-            Response.Headers.Add("Access-Control-Expose-Headers","Content-Disposition");
-            return fileStreamResult;
-        }
+        // [HttpPost]
+        // public async Task<IActionResult> Gowno()
+        // {
+        //     return HandleResult(await Mediator.Send(new Application.Article.ChaangeDates.Query()));
+        // }
+       
 
     }
 }

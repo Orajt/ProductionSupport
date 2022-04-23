@@ -85,6 +85,7 @@ namespace Application.Article
                 article.CalculateCapacity();
                 article.FullName=request.FullName;
                 article.NameWithoutFamilly=request.NameWithoutFamilly;
+                article.EditDate=DateHelpers.SetDateTimeToCurrent(DateTime.Now).Date;
                 
                 var possibleChildTypes = Relations.ArticleTypeRelations.Where(p=>p.Parent==article.ArticleTypeId).Select(p=>p.Child).ToList();
                 var requestCompoentIds=request.ChildArticles.Select(p=>p.ChildId).ToList();
