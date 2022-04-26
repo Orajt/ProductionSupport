@@ -11,6 +11,7 @@ Libraries .NET: Automapper, Linq Dynamic, Swashbuckle, ImageSharp, itext7, QRCod
 Libraries React: Formik, yup, react-select, react-router-dom, react-pdf, react-toastify, react-dropzone
 
 Link to azure: http://mjasiukiewicz.germanywestcentral.azurecontainer.io/
+
 login: admin@test.com
 pw: Pa$$w0rd
 -------------------------------------------------------------------------------
