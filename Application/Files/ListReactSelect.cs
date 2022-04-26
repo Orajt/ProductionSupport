@@ -30,7 +30,7 @@ namespace Application.Files
                 {
                     string pdfFolderPath = Path.Combine(_env.WebRootPath);
                     DirectoryInfo pdfDirectoryInfo = new DirectoryInfo(pdfFolderPath);
-                    FileInfo[] PdfFiles = pdfDirectoryInfo.GetFiles();
+                    FileInfo[] PdfFiles = pdfDirectoryInfo.GetFiles(searchPattern: "*.pdf");
                     foreach(var file in PdfFiles)
                     {
                         result.Add(new ReactSelectInt(){

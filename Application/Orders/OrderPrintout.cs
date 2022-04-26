@@ -105,8 +105,8 @@ namespace Application.Orders
                 List<Table> tabels = new List<Table>();
                 List<Image> images = new List<Image>();
                 ///////Font///////////////
-
-                PdfFont normalFont = PdfFontFactory.CreateFont(_env.WebRootPath + $"\\fonts\\" + "NotoSans-Light.ttf", "Identity-H", pdf);
+                var fontPath = Path.Combine(_env.WebRootPath,"fonts","NotoSans-Light.ttf");
+                PdfFont normalFont = PdfFontFactory.CreateFont(fontPath, "Identity-H", pdf);
 
                 var groupedArticles = articleList.GroupBy(p => p.StuffId).ToList();
 

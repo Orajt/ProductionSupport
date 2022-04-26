@@ -67,6 +67,11 @@ namespace Application.Files
 
                 if (request.ExsistingFiles != null && request.ExsistingFiles.Count > 0)
                 {
+                    if(request.ExsistingFiles.Count()!=article.FilePaths.Where(p=>p.FileType=="jpg").Count())
+                    {
+                        var pathsToSeparate=article.FilePaths.Where(p => (p.FileType == "jpg" || p.FileType == "thumb") && !request.ExsistingFiles.Contains(p.FileName)).ToList();
+                        _context.RemoveRange(pathsToSeparate);
+                    }
                     foreach (var fileName in request.ExsistingFiles)
                     {
                         var oldFile = article.FilePaths.FirstOrDefault(p => p.FileName == fileName);
