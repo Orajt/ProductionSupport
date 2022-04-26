@@ -40,7 +40,13 @@ namespace Application.Files
                 }
 
                 if (file == null) return null;
-                var stream = new FileStream(_env.WebRootPath + file.Path, FileMode.Open, FileAccess.Read);
+                
+
+                var path=Path.Combine(_env.WebRootPath,file.Path);
+                
+
+                // var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+                var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
                 string contentType = "image/jpeg";
                 if (file.FileType == "pdf")
                 {

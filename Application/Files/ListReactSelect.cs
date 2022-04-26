@@ -28,7 +28,7 @@ namespace Application.Files
                 int i=0;
                 if (request.Type == "pdf")
                 {
-                    string pdfFolderPath = _env.WebRootPath + @"\pdfs";
+                    string pdfFolderPath = Path.Combine(_env.WebRootPath);
                     DirectoryInfo pdfDirectoryInfo = new DirectoryInfo(pdfFolderPath);
                     FileInfo[] PdfFiles = pdfDirectoryInfo.GetFiles();
                     foreach(var file in PdfFiles)
@@ -42,7 +42,7 @@ namespace Application.Files
                 }
                 if(request.Type=="jpg")
                 {
-                    string imageFolderPath = _env.WebRootPath + @"\images";
+                    string imageFolderPath = Path.Combine(_env.WebRootPath,"images");
                     DirectoryInfo imageDirectoryInfo = new DirectoryInfo(imageFolderPath);
                     FileInfo[] ImageFiles = imageDirectoryInfo.GetFiles(searchPattern: "*.jpg");
                     foreach(var file in ImageFiles)

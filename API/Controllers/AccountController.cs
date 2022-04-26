@@ -49,40 +49,6 @@ namespace API.Controllers
             return Unauthorized("Invalid password");
         }
 
-        [AllowAnonymous]
-        [HttpPost("register")]
-        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
-        {
-            if (await _userManager.Users.AnyAsync(x => x.Email == registerDto.Email))
-            {
-                ModelState.AddModelError("email", "Email taken");
-                return ValidationProblem();
-            }
-            if (await _userManager.Users.AnyAsync(x => x.UserName == registerDto.Username))
-            {
-                ModelState.AddModelError("username", "Username taken");
-                return ValidationProblem();
-            }
-
-            var user = new AppUser
-            {
-                DisplayName = registerDto.DisplayName,
-                Email = registerDto.Email,
-                UserName = registerDto.Username
-            };
-
-            var result = await _userManager.CreateAsync(user, registerDto.Password);
-
-            if (!result.Succeeded) return BadRequest("Problem registering user");
-
-            var origin = Request.Headers["origin"];
-            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-
-            return CreateUserObject(user);
-        }
-
-
         [Authorize]
         [HttpGet]
         public async Task<ActionResult<UserDto>> GetCurrentUser()

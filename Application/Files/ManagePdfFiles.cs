@@ -31,10 +31,10 @@ namespace Application.Files
                 var supportedFiles = new List<string>(){
                     "application/pdf",
                 };
-                string pdfFolderPath = _env.WebRootPath + @"\pdfs";
+                string pdfFolderPath = _env.WebRootPath;
                 bool result = false;
                 DirectoryInfo pdfDirectoryInfo = new DirectoryInfo(pdfFolderPath);
-                FileInfo[] PdfFiles = pdfDirectoryInfo.GetFiles();
+                FileInfo[] PdfFiles = pdfDirectoryInfo.GetFiles("*.pdf");
 
                 var article = await _context.Articles.Include(p => p.FilePaths).FirstOrDefaultAsync(p => p.Id == request.ArticleId);
 
@@ -49,7 +49,7 @@ namespace Application.Files
                     {
                         if (!await _context.ArticlesFilesPaths.AnyAsync(p => p.FileName == pathToSeparate.FileName && p.ArticleId != article.Id))
                         {
-                            File.Delete(_env.WebRootPath+pathToSeparate.Path);
+                            File.Delete(Path.Combine(_env.WebRootPath,pathToSeparate.Path));
                         }
                         _context.Remove(pathToSeparate);
                     }
@@ -119,7 +119,7 @@ namespace Application.Files
                     if (file.FileName.Substring(file.FileName.Length - 3) != "pdf")
                         return Result<Unit>.Failure("Pdf filenames last 3 characters should be pdf");
 
-                    var filePath = pdfFolderPath + @$"\{file.FileName}";
+                    var filePath = Path.Combine(pdfFolderPath, file.FileName);
 
                     if (PdfFiles.Any(p=>p.Name==file.Name))
                         return Result<Unit>.Failure($"File named {file.FileName} exists in database");
@@ -132,7 +132,7 @@ namespace Application.Files
                         {
                             if (await _context.ArticlesFilesPaths.AnyAsync(p => p.FileName == pathToSeparate.FileName && p.ArticleId != article.Id))
                             {
-                                var fullPath = _env.WebRootPath+pathToSeparate.Path;
+                                var fullPath = Path.Combine(_env.WebRootPath,pathToSeparate.Path);
                                 File.Delete(fullPath);
                             }
                             _context.Remove(pathToSeparate);
@@ -148,7 +148,7 @@ namespace Application.Files
                             FileName = file.FileName,
                             Article = article,
                             ArticleId = article.Id,
-                            Path = @"\pdfs\"+file.FileName
+                            Path = file.FileName
                         };
                         _context.ArticlesFilesPaths.Add(fileToAssign);
                     }
