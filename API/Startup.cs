@@ -35,7 +35,7 @@ namespace API
             app.UseReferrerPolicy(opt => opt.NoReferrer());
             app.UseXXssProtection(opt => opt.EnabledWithBlockMode());
             app.UseXfo(opt => opt.Deny());
-            app.UseCspReportOnly(opt => opt
+            app.UseCsp(opt => opt
                 .BlockAllMixedContent()
                 .StyleSources(s => s.Self().CustomSources("https://fonts.googleapis.com","sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "blob:"))
                 .FontSources(s => s.Self().CustomSources("https://fonts.gstatic.com", "data:"))
@@ -45,6 +45,11 @@ namespace API
                 .ScriptSources(s => s.Self().CustomSources("https://cdnjs.cloudflare.com","sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=","blob:"))
                 
             );
+            // app.Use(async (context, next) =>
+            //     {
+            //         context.Response.Headers.Add("Strict-Transport-Security", "max-age=31536000");
+            //         await next.Invoke();
+            //     });
 
             if (env.IsDevelopment())
             {
