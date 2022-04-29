@@ -1,3 +1,4 @@
+using Application.Core;
 using Application.Interfaces;
 using Application.Repositories;
 using Persistence;
@@ -7,11 +8,13 @@ namespace Application.UnitOfWork
     public class UnitOfWork : IUnitOfWork
     {
         private readonly DataContext _context;
-        public UnitOfWork(DataContext context)
+        private readonly IRelations _relations;
+        public UnitOfWork(DataContext context, IRelations relations)
         {
+            _relations = relations;
             _context = context;
             Articles = new ArticleRepository(_context);
-            ArticlesArticles = new ArticleArticleRepository(_context);
+            ArticlesArticles = new ArticleArticleRepository(_context, _relations);
             ArticlesFabricRealizations = new ArticleFabicRealizationRepository(_context);
             Stuffs = new StuffRepository(_context);
             ArticlesFilePaths = new ArticleFilePathRepository(_context);

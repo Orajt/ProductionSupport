@@ -1,4 +1,5 @@
 using Application.Core;
+using Application.Interfaces;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -23,26 +24,26 @@ namespace Application.Stuff
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
-            private readonly DataContext _context;
-            public Handler(DataContext context)
+            private readonly IUnitOfWork _unitOfWork;
+            public Handler(IUnitOfWork context)
             {
-                _context = context;
+                _unitOfWork = context;
             }
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                if(await _context.Articles.AnyAsync(p=>p.StuffId==request.Id))
+                if(await _unitOfWork.Articles.Any(p=>p.StuffId==request.Id))
                 {
                     return Result<Unit>.Failure("Stuff is being used in some articles");
                 }
-                var stuff = await _context.Stuffs.FirstOrDefaultAsync(p=>p.Id==request.Id);
+                var stuff = await _unitOfWork.Stuffs.Find(request.Id);
                 
                 if(stuff==null)
                     return null;
 
-                _context.Stuffs.Remove(stuff);
+                _unitOfWork.Stuffs.Remove(stuff);
 
-                var result = await _context.SaveChangesAsync() > 0;
+                var result = await _unitOfWork.SaveChangesAsync();
 
                 if (!result) return Result<Unit>.Failure("Failed to create stuff");
                 

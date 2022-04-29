@@ -25,11 +25,22 @@ namespace Application.Repositories
             return result;
         }
 
-        public async Task<bool> IsArticleNameUnique(string name, int articleTypeId, int? stuffId)
+        public async Task<Domain.Article> GetArticleWithChildRelationsById(int id)
+        {
+            return await _context.Articles.Include(p => p.ChildRelations).FirstOrDefaultAsync(p=>p.Id==id);
+        }
+
+        public async Task<bool> IsArticleNameUnique(string name, int articleTypeId, int? stuffId=null)
         {
             return await _context.Articles.AnyAsync(p => p.FullName.ToUpper() == name.ToUpper()
                                              && p.ArticleTypeId == articleTypeId
                                              && p.StuffId == stuffId);
+            
         }
+        new public void Add(Domain.Article entity)
+        {
+            _context.Set<Domain.Article>().Add(entity);
+        }
+
     }
 }

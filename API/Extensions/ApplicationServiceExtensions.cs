@@ -9,6 +9,8 @@ using Application.ProductionDepartment;
 using Application.Core;
 using Application.Repositories;
 using Application.UnitOfWork;
+using Application.Calculation;
+using Application.Article;
 
 namespace API.Extensions
 {
@@ -60,6 +62,9 @@ namespace API.Extensions
             services.AddTransient<ISetRepository, SetRepository>();  
             services.AddTransient<IStuffRepository, StuffRepository>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
+            services.AddTransient<IRelations, Relations>();
+            services.AddSingleton<ICalculateFabricsCreatePdf, CalculateFabricsCreatePdf>();
+            services.AddTransient<IArticleHelpers, ArticleHelpers>();
             services.AddSignalR();
 
             return services;
