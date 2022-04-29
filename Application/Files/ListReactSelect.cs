@@ -1,6 +1,7 @@
 using Application.Core;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 namespace Application.Files
@@ -24,35 +25,42 @@ namespace Application.Files
 
             public async Task<Result<List<ReactSelectInt>>> Handle(Query request, CancellationToken cancellationToken)
             {
+                var artTypes =await _context.ArticleTypes.AnyAsync();
                 var result = new List<ReactSelectInt>();
-                int i=0;
+                int i = 0;
                 if (request.Type == "pdf")
                 {
                     string pdfFolderPath = Path.Combine(_env.WebRootPath);
                     DirectoryInfo pdfDirectoryInfo = new DirectoryInfo(pdfFolderPath);
                     FileInfo[] PdfFiles = pdfDirectoryInfo.GetFiles(searchPattern: "*.pdf");
-                    foreach(var file in PdfFiles)
+                    foreach (var file in PdfFiles)
                     {
-                        result.Add(new ReactSelectInt(){
-                            Label=file.Name,
-                            Value=i
+                        result.Add(new ReactSelectInt()
+                        {
+                            Label = file.Name,
+                            Value = i
                         });
                         i++;
                     }
                 }
-                if(request.Type=="jpg")
+                if (request.Type == "jpg")
                 {
-                    string imageFolderPath = Path.Combine(_env.WebRootPath,"images");
+                    string imageFolderPath = Path.Combine(_env.WebRootPath, "images");
                     DirectoryInfo imageDirectoryInfo = new DirectoryInfo(imageFolderPath);
                     FileInfo[] ImageFiles = imageDirectoryInfo.GetFiles(searchPattern: "*.jpg");
-                    foreach(var file in ImageFiles)
+                    foreach (var file in ImageFiles)
                     {
-                        var checkTh = file.Name.Substring(0,3);
-                        if(checkTh=="th_")
-                            continue;
-                        result.Add(new ReactSelectInt(){
-                            Label=file.Name,
-                            Value=i
+                        if (file.Name.Length > 3)
+                        {
+                            var checkTh = file.Name.Substring(0, 3);
+                            if (checkTh == "th_")
+                                continue;
+                        }
+
+                        result.Add(new ReactSelectInt()
+                        {
+                            Label = file.Name,
+                            Value = i
                         });
                         i++;
                     }

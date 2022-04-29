@@ -1,5 +1,4 @@
 using Application.Article;
-using Application.Core;
 using Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Persistence;

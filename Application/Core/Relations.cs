@@ -1,13 +1,7 @@
+using Application.Interfaces;
+
 namespace Application.Core
 {
-    public interface IRelations
-    {
-        ArticleTypeComponents ArticleProperties(int id);
-        List<ArticleTypeComponents> GetAllArticleProperties();
-        List<ArticleTypeRelation> ArticleTypeRelations();
-        void FindEveryParentToArticleType(List<int> parents, int articleTypeId);
-    }
-
     public class Relations : IRelations
     {
         private List<ArticleTypeRelation> _articleTypeRelations { get; set; } = new List<ArticleTypeRelation>
@@ -52,5 +46,9 @@ namespace Application.Core
             parents = parents.Distinct().ToList();
         }
 
+        public List<int> ArticleTypesIdsPossibleToAssign(int parentId)
+        {
+            return _articleTypeRelations.Where(p => p.Parent == parentId).Select(p => p.Child).ToList();
+        }
     }
 }

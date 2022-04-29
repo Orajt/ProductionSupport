@@ -1,4 +1,5 @@
 using Application.Core;
+using Application.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -32,11 +33,10 @@ namespace Application.Article
                 }
 
                 var articlesRS = new List<ReactSelectInt>();
-
                 switch (request.Predicate)
                 {
                     case "TOASSIGN":
-                        var possibleTypes = _relations.ArticleTypeRelations().Where(p => p.Parent == request.ArticleTypeId).Select(p => p.Child).ToList();
+                        var possibleTypes = _relations.ArticleTypesIdsPossibleToAssign(request.ArticleTypeId);
                         var articles = await _context.Articles
                             .AsNoTracking()
                             .OrderBy(p => p.FullName)
@@ -54,8 +54,11 @@ namespace Application.Article
                                 continue;
                             }
                             if (!String.IsNullOrEmpty(article.FamillyName))
-                                articlesRS.Add(new ReactSelectInt() { Label = $"{article.FullName}({article.FamillyName})", Value = article.Id });
-
+                            {
+                                 articlesRS.Add(new ReactSelectInt() { Label = $"{article.FullName}({article.FamillyName})", Value = article.Id });
+                                 continue;
+                            }
+                            articlesRS.Add(new ReactSelectInt(){Label=$"{article.FullName}", Value = article.Id});
                         }
                         break;
                     case "FULLLIST":

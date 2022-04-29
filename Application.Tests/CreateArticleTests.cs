@@ -48,13 +48,6 @@ public class CreateArticleTests
             FullName = "a",
             NameWithoutFamilly = "a",
             ArticleTypeId = 1,
-            FamillyId = 1,
-            StuffId = 1,
-            FabricVariantGroupId = 1,
-            Length = 2,
-            Width = 2,
-            High = 2,
-            CreatedInCompany = true,
             ChildArticles = new List<DetailsDtoChildArticles>()
             {
                 new DetailsDtoChildArticles
@@ -69,7 +62,6 @@ public class CreateArticleTests
                 }
             }
         };
-
     }
     [Test]
     public async Task ArticleCreate_ArticleWithSameNameAndStuffExistInDataBase1_ReturnResultFailure()

@@ -32,10 +32,13 @@ namespace Application.Repositories
 
         public async Task<bool> IsArticleNameUnique(string name, int articleTypeId, int? stuffId=null)
         {
+            if(stuffId!=0)
             return await _context.Articles.AnyAsync(p => p.FullName.ToUpper() == name.ToUpper()
                                              && p.ArticleTypeId == articleTypeId
                                              && p.StuffId == stuffId);
-            
+                                             
+            return await _context.Articles.AnyAsync(p => p.FullName.ToUpper() == name.ToUpper()
+                                             && p.ArticleTypeId == articleTypeId);   
         }
         new public void Add(Domain.Article entity)
         {

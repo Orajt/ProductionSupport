@@ -8,6 +8,7 @@ COPY Application/*csproj ./Application/
 COPY Domain/*csproj ./Domain/
 COPY Infrastructure/*csproj ./Infrastructure/
 COPY Persistence/*csproj ./Persistence/
+COPY Application.Tests/*csproj ./Application.Tests/
 
 # Restore as distinct layers
 RUN dotnet restore
@@ -17,6 +18,7 @@ COPY Application/. ./Application/
 COPY Domain/. ./Domain/
 COPY Infrastructure/. ./Infrastructure/
 COPY Persistence/. ./Persistence/
+COPY Application.Tests/. ./Application.Tests/
 
 WORKDIR /app/API
 # Build and publish a release
@@ -25,5 +27,6 @@ RUN dotnet publish -c Release -o out
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:6.0
 WORKDIR /app
+EXPOSE 80
 COPY --from=build-env /app/API/out ./
 ENTRYPOINT ["dotnet", "API.dll"]

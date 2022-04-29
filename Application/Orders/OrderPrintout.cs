@@ -9,6 +9,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 using Microsoft.AspNetCore.Hosting;
+using Application.Interfaces;
 
 namespace Application.Orders
 {
