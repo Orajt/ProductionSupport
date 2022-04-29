@@ -1,4 +1,5 @@
 using Application.Core;
+using Application.Interfaces;
 using AutoMapper;
 using FluentValidation;
 using MediatR;
@@ -16,6 +17,7 @@ namespace Application.Article
             public string NameWithoutFamilly { get; set; }
             public int? FamillyId { get; set; }
             public int? StuffId { get; set; }
+            public int? FabricVariantGroupId { get; set; }
             public int Length { get; set; }
             public int Width { get; set; }
             public int High { get; set; }
@@ -34,100 +36,80 @@ namespace Application.Article
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
-            private readonly DataContext _context;
-            private readonly IMapper _mapper;
-
-            public Handler(DataContext context, IMapper mapper)
+            private readonly IUnitOfWork _unitOfWork;
+            private readonly IArticleHelpers _articleHelpers;
+            public Handler(IUnitOfWork unitOfWork, IArticleHelpers articleHelpers)
             {
-                _context = context;
-                _mapper = mapper;
+                _articleHelpers = articleHelpers;
+                _unitOfWork = unitOfWork;
             }
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var article = await _context.Articles.Include(p=>p.ChildRelations).FirstOrDefaultAsync(p => p.Id == request.Id);
-
-                if (article == null) 
-                    return null;
-
-                 if (_context.Articles.Any(p => p.FullName.ToUpper() == request.FullName.ToUpper()
-                                             && p.ArticleTypeId == article.ArticleTypeId
-                                             && p.FamillyId == request.FamillyId
-                                             && p.StuffId == request.StuffId))
+                var article = await _unitOfWork.Articles.GetArticleWithChildRelationsById(request.Id);
+                if (article == null) return null;
+                if (article.FullName != request.FullName &&
+                    await _unitOfWork.Articles.IsArticleNameUnique(request.FullName, article.ArticleTypeId, request.StuffId))
                 {
                     return Result<Unit>.Failure("Article with choosen parameters exist in DataBase");
                 }
+                var newArticleProperties = await _unitOfWork.Articles.FindAdditionalProperties(
+                    request.FamillyId != article.FamillyId ? request.FamillyId : null,
+                    request.StuffId != article.StuffId ? request.StuffId : null,
+                    request.FabricVariantGroupId != article.FabricVariantGroupId ? request.FabricVariantGroupId : null);
 
-                Domain.Familly familly = article.Familly;
-                Domain.Stuff stuff = article.Stuff;
-
-                if (request.FamillyId!= null && request.FamillyId != 0 && request.FamillyId!=article.FamillyId)
+                if (article.FabricVariantGroupId != request.FabricVariantGroupId)
                 {
-                    familly = await _context.Famillies.FirstOrDefaultAsync(p => p.Id == request.FamillyId);
-                    if (familly == null) 
-                        return null;
-                    article.Familly=familly;
-                    article.FamillyId=familly.Id;
+                    var fabricRealizationsToDelete = _unitOfWork.ArticlesFabricRealizations.Where(p => p.ArticleId == article.Id);
+                    _unitOfWork.ArticlesFabricRealizations.RemoveRange(fabricRealizationsToDelete);
                 }
-                if (request.StuffId!= null && request.StuffId != 0 && request.StuffId!=article.StuffId)
+                article = _articleHelpers.ReplaceArticleProperitiesToNewer(article, newArticleProperties, request);
+
+                if (request.ChildArticles == null || request.ChildArticles.Count == 0)
                 {
-                    stuff = await _context.Stuffs.FirstOrDefaultAsync(p => p.Id == request.StuffId);
-                    if (stuff == null) 
-                        return null;
-                    article.Stuff=stuff;
-                    article.StuffId=stuff.Id;
+                    _unitOfWork.ArticlesArticles.RemoveRange(article.ChildRelations);
+                    article.HasChild = false;
                 }
 
-                article.Width=request.Width;
-                article.Length=request.Length;
-                article.High=request.High;
-                article.CreatedInCompany=request.CreatedInCompany;
-                article.CalculateCapacity();
-                article.FullName=request.FullName;
-                article.NameWithoutFamilly=request.NameWithoutFamilly;
-                article.EditDate=DateHelpers.SetDateTimeToCurrent(DateTime.Now).Date;
-                
-                var possibleChildTypes = Relations.ArticleTypeRelations.Where(p=>p.Parent==article.ArticleTypeId).Select(p=>p.Child).ToList();
-                var requestCompoentIds=request.ChildArticles.Select(p=>p.ChildId).ToList();
-
-                var articleDependenciesToDelete = article.ChildRelations.Where(p=>!requestCompoentIds.Contains(p.ChildId)).ToList();
-                _context.ArticleArticle.RemoveRange(articleDependenciesToDelete);
-
-                var articleComponents = article.ChildRelations.Where(p=>requestCompoentIds.Contains(p.ChildId)).ToList();
-
-                var newArticleIds=request.ChildArticles
-                    .Where(p=>!articleComponents.Select(z=>z.ChildId).Contains(p.ChildId))
-                    .Select(p=>p.ChildId).ToList();
-                
-                var newArticlesToAssign = await _context.Articles.Where(p=>newArticleIds.Contains(p.Id)).ToListAsync();
-                var articleDependenciesToAdd = new List<Domain.ArticleArticle>();
-
-                if(request.ChildArticles!=null && request.ChildArticles.Count>0)
+                if (request.ChildArticles != null && request.ChildArticles.Count > 0)
                 {
-                    foreach(var component in request.ChildArticles)
+                    var requestCompoentIds = request.ChildArticles.Select(p => p.ChildId).ToList();
+
+                    //Delete article components that arent on the request child articles list//
+                    var articleComponentsToDelete = article.ChildRelations.Where(p => !requestCompoentIds.Contains(p.ChildId)).ToList();
+                    _unitOfWork.ArticlesArticles.RemoveRange(articleComponentsToDelete);
+
+                    //Select components that were before and still exists//
+                    var articleOldComponents = article.ChildRelations.Where(p => requestCompoentIds.Contains(p.ChildId)).ToList();
+
+                    if (request.ChildArticles != null && request.ChildArticles.Count > 0)
                     {
-                        var oldComponent = articleComponents.FirstOrDefault(p=>p.ChildId==component.ChildId);
-                        if(oldComponent!=null){
-                            oldComponent.Quanity=component.Quanity;
-                            continue;
+                        foreach (var component in articleOldComponents)
+                        {
+                            component.Quanity = request.ChildArticles.FirstOrDefault(p => p.ChildId == component.ChildId).Quanity;
                         }
-                        var articleToAssign = newArticlesToAssign.FirstOrDefault(p=>p.Id==component.ChildId);
-                        if(articleToAssign==null) 
-                            return null;
-                        articleDependenciesToAdd.Add(new Domain.ArticleArticle{
-                            ParentArticle=article,
-                            ParentId=article.Id,
-                            ChildArticle=articleToAssign,
-                            ChildId=articleToAssign.Id,
-                            Quanity=component.Quanity
-                        });
                     }
-                }
-                _context.ArticleArticle.AddRange(articleDependenciesToAdd);
 
-                article.HasChild = (articleDependenciesToAdd.Count>0 || articleComponents.Count>0);
-                var result = await _context.SaveChangesAsync() > 0;
-               
+                    //New components to add//
+                    var articleNewComponents = request.ChildArticles
+                        .Where(p => !articleOldComponents.Select(z => z.ChildId).Contains(p.ChildId)).ToList();
+
+                    if (articleNewComponents.Count > 0)
+                    {
+                        var articleNewComponentsToAdd = await _unitOfWork.ArticlesArticles.GetComponentsToParentAricle(components: articleNewComponents, parent: article);
+                        if (articleNewComponentsToAdd.Count == 0)
+                            return Result<Unit>.Failure($"One or more child article types doesnt match to parent article");
+                        if (articleNewComponentsToAdd == null) return null;
+                        if (articleNewComponentsToAdd.Count > 0)
+                        {
+                            _unitOfWork.ArticlesArticles.AddRange(articleNewComponentsToAdd);
+                            article.HasChild = true;
+                        }
+                    }
+                    article.HasChild = true;
+                }
+                var result = await _unitOfWork.SaveChangesAsync();
+
                 if (!result) return Result<Unit>.Failure("Failed to edit Article");
 
                 return Result<Unit>.Success(Unit.Value);

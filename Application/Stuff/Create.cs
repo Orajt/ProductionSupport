@@ -1,4 +1,5 @@
 using Application.Core;
+using Application.Interfaces;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -17,32 +18,34 @@ namespace Application.Stuff
         {
             public CommandValidator()
             {
-               RuleFor(p=>p.Name).NotNull();
+                RuleFor(p => p.Name).NotNull();
             }
         }
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
-            private readonly DataContext _context;
-            public Handler(DataContext context)
+            public IUnitOfWork _unitOfWork { get; }
+            public Handler(IUnitOfWork unitOfWork)
             {
-                _context = context;
+                _unitOfWork = unitOfWork;
             }
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                if(await _context.Stuffs.AnyAsync(p=>p.Name.ToUpper()==request.Name.ToUpper()))
+                if (await _unitOfWork.Stuffs.Any(p=>p.Name==request.Name))
                     return Result<Unit>.Failure($"Stuff {request.Name} exist in database");
 
-                var newStuff = new Domain.Stuff{
-                    Name=request.Name,  
+                var newStuff = new Domain.Stuff
+                {
+                    Name = request.Name,
                 };
+                
+                _unitOfWork.Stuffs.Add(newStuff);
 
-                _context.Stuffs.Add(newStuff);
-                var result = await _context.SaveChangesAsync() > 0;
+                var result = await _unitOfWork.SaveChangesAsync();
 
                 if (!result) return Result<Unit>.Failure("Failed to create stuff");
-                
+
                 return Result<Unit>.Success(Unit.Value);
             }
         }

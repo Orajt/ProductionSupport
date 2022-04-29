@@ -1,13 +1,14 @@
 using iText.IO.Image;
 using iText.Kernel.Colors;
 using iText.Kernel.Font;
+using iText.Kernel.Pdf.Canvas.Draw;
 using iText.Layout.Element;
 using iText.Layout.Properties;
 using QRCoder;
 
 namespace Application.Core
 {
-    public static class PdfElements
+    public class PdfElements
     {
         public static Cell CreateHeaderCell(string content, int rowSpan, int colSpan, PdfFont font)
         {
@@ -43,7 +44,7 @@ namespace Application.Core
         }
         public static iText.Layout.Element.Image CreateQrCodeImage(int id)
         {
-            var text=Core.HardcodedClientAppUrls.PdfViewUrl(id);
+            var text = Core.HardcodedClientAppUrls.PdfViewUrl(id);
 
             var newImage = new iText.Layout.Element.Image(ImageDataFactory
                                 .Create(CreateQrCode(text)));
@@ -52,5 +53,11 @@ namespace Application.Core
             return newImage;
         }
 
+    }
+    public class CommonPdfElements
+    {
+        public Paragraph NewLine { get; set; } = new Paragraph(new Text("\n"));
+        public LineSeparator Ls { get; set; } = new LineSeparator(new SolidLine());
+        public AreaBreak BreakPage { get; set; } = new AreaBreak(AreaBreakType.NEXT_PAGE);
     }
 }

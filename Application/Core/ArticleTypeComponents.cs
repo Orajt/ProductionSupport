@@ -9,6 +9,10 @@ namespace Application.Core
             this.HasStuff = HasStuff;
             this.HasFabicVariantGroup=hasFVG;
         }
+        public ArticleTypeComponents()
+        {
+            
+        }
         public int ArticleTypeId { get; set; }
         public bool HasStuff { get; set; }
         public bool HasFamilly { get; set; }

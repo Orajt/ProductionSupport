@@ -1,10 +1,7 @@
-using System.Diagnostics;
 using Application.Core;
+using Application.Interfaces;
 using FluentValidation;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Persistence;
 
 
 namespace Application.Article
@@ -16,9 +13,9 @@ namespace Application.Article
             public string FullName { get; set; }
             public string NameWithoutFamilly { get; set; }
             public int ArticleTypeId { get; set; }
-            public int? FamillyId { get; set; }=0;
-            public int? StuffId { get; set; }=0;
-            public int? fabricVariantGroupId { get; set; }=0;
+            public int? FamillyId { get; set; } = 0;
+            public int? StuffId { get; set; } = 0;
+            public int? FabricVariantGroupId { get; set; } = 0;
             public int Length { get; set; }
             public int Width { get; set; }
             public int High { get; set; }
@@ -39,107 +36,74 @@ namespace Application.Article
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
-            private readonly DataContext _context;
-            public Handler(DataContext context)
+            private readonly IUnitOfWork _unitOfWork;
+            private readonly IRelations _relations;
+            private readonly IArticleHelpers _articleHelpers;
+            public Handler(IUnitOfWork unitOfWork, IRelations relations, IArticleHelpers articleHelpers)
             {
-                _context = context;
+                _articleHelpers = articleHelpers;
+                _relations = relations;
+                _unitOfWork = unitOfWork;
             }
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                if (_context.Articles.Any(p => p.FullName.ToUpper() == request.FullName.ToUpper()
-                                             && p.ArticleTypeId == request.ArticleTypeId
-                                             && p.FamillyId == request.FamillyId
-                                             && p.StuffId == request.StuffId))
+                if (await _unitOfWork.Articles.IsArticleNameUnique(request.FullName, request.ArticleTypeId, request.StuffId))
                 {
                     return Result<Unit>.Failure("Article with choosen parameters exist in DataBase");
                 }
-                var articleType = await _context.ArticleTypes.FirstOrDefaultAsync(p => p.Id == request.ArticleTypeId);
-                if (articleType == null) 
+                var articleType = await _unitOfWork.ArticleTypes.Find(request.ArticleTypeId);
+                if (articleType == null)
                     return null;
-                Domain.Familly familly = null;
-                Domain.Stuff stuff = null;
-                Domain.FabricVariantGroup fvg = null;
 
-                if (request.FamillyId!=null && request.FamillyId != 0)
+                var articleProperties = await _unitOfWork.Articles.FindAdditionalProperties(request.FamillyId, request.StuffId, request.FabricVariantGroupId);
+                var articleTypeProperties = _relations.ArticleProperties(articleType.Id);
+                var propertiesError = _articleHelpers.ArticleProperitiesError(articleTypeProperties, articleProperties);
+
+                if (!String.IsNullOrEmpty(propertiesError))
                 {
-                    familly = await _context.Famillies.FirstOrDefaultAsync(p => p.Id == request.FamillyId);
-                    if (familly == null) 
-                        return null;
+                    return Result<Unit>.Failure(propertiesError);
                 }
-                if (request.StuffId!=null && request.StuffId != 0)
-                {
-                    stuff = await _context.Stuffs.FirstOrDefaultAsync(p => p.Id == request.StuffId);
-                    if (stuff == null) 
-                        return null;
-                }
-                if (request.fabricVariantGroupId!=null && request.fabricVariantGroupId != 0)
-                {
-                    fvg = await _context.FabricVariantGroups.FirstOrDefaultAsync(p => p.Id == request.fabricVariantGroupId);
-                    if (fvg == null) 
-                        return null;
-                }
-
-                var properties = Relations.ArticleProperties.FirstOrDefault(p=>p.ArticleTypeId==articleType.Id);
-
-                if(properties.HasFamilly && familly==null)
-                     return Result<Unit>.Failure("Article needs familly");
-                if(properties.HasStuff && stuff==null)
-                     return Result<Unit>.Failure("Article needs stuff");
-                if(properties.HasFabicVariantGroup && fvg==null)
-                     return Result<Unit>.Failure("Article needs fabric variant group");
-
                 var article = new Domain.Article
                 {
                     FullName = request.FullName,
                     NameWithoutFamilly = request.NameWithoutFamilly,
                     ArticleType = articleType,
                     ArticleTypeId = articleType.Id,
-                    Familly = properties.HasFamilly ? familly : null,
-                    FamillyId = properties.HasFamilly ? familly.Id : null,
-                    Stuff = properties.HasStuff ? stuff : null,
-                    StuffId = properties.HasStuff ? stuff.Id : null,
-                    FabricVariant=properties.HasFabicVariantGroup? fvg : null,
-                    FabricVariantGroupId=properties.HasFabicVariantGroup? fvg.Id : null,
+                    Familly = articleTypeProperties.HasFamilly ? articleProperties.Familly : null,
+                    FamillyId = articleTypeProperties.HasFamilly ? articleProperties.Familly.Id : null,
+                    Stuff = articleTypeProperties.HasStuff ? articleProperties.Stuff : null,
+                    StuffId = articleTypeProperties.HasStuff ? articleProperties.Stuff.Id : null,
+                    FabricVariant = articleTypeProperties.HasFabicVariantGroup ? articleProperties.FabricVariantGroup : null,
+                    FabricVariantGroupId = articleTypeProperties.HasFabicVariantGroup ? articleProperties.FabricVariantGroup.Id : null,
                     EditDate = DateHelpers.SetDateTimeToCurrent(DateTime.Now).Date,
                     CreateDate = DateHelpers.SetDateTimeToCurrent(DateTime.Now).Date,
                     Length = request.Length,
                     Width = request.Width,
                     High = request.High,
-                    CreatedInCompany=request.CreatedInCompany
-
+                    CreatedInCompany = request.CreatedInCompany
                 };
 
                 article.CalculateCapacity();
-                _context.Articles.Add(article);
+                _unitOfWork.Articles.Add(article);
 
-                var articleComponents = new List<Domain.ArticleArticle>();
-                var possibleChildTypes = Relations.ArticleTypeRelations.Where(p=>p.Parent==articleType.Id).Select(p=>p.Child).ToList();
-                if (request.ChildArticles!=null && request.ChildArticles.Count > 0)
+                if (request.ChildArticles != null && request.ChildArticles.Count > 0)
                 {
                     try
                     {
-                        var componentsIds = request.ChildArticles.Select(p => p.ChildId).ToList();
-                        var articlesToAssing = await _context.Articles.Where(p => componentsIds.Contains(p.Id)).ToListAsync();
-                        foreach (var component in request.ChildArticles)
-                        {
-                            var componentDB = articlesToAssing.FirstOrDefault(p => p.Id == component.ChildId);
-                            if (componentDB == null) return null;
-                            if(!possibleChildTypes.Any(p=>p==componentDB.ArticleTypeId))
-                                return Result<Unit>.Failure($"Article type of article {componentDB.FullName} is not right for the article type you want to create");
-                            articleComponents.Add(new Domain.ArticleArticle { ParentArticle = article, ParentId = article.Id, ChildArticle = componentDB, ChildId = componentDB.Id, Quanity = component.Quanity });
-                        }
-                        if (articleComponents.Count > 0)
-                            _context.ArticleArticle.AddRange(articleComponents);
-                    }catch(Exception e){
-                        return Result<Unit>.Failure($"Failed to create Article: {e.Message}");
+                        var articleComponents = await _unitOfWork.ArticlesArticles.GetComponentsToParentAricle(components: request.ChildArticles, parent: article);
+                        if (articleComponents.Count == 0)
+                            return Result<Unit>.Failure($"One or more child article types doesnt match to parent article");
+
+                        _unitOfWork.ArticlesArticles.AddRange(articleComponents);
+                        article.HasChild = true;
+                    }
+                    catch (Exception e)
+                    {
+                        return Result<Unit>.Failure($"Failed to create assign child articles: {e.Message}");
                     }
                 }
-                if(articleComponents.Count>0)
-                    article.HasChild=true;
-
-
-                var result = await _context.SaveChangesAsync() > 0;
+                var result = await _unitOfWork.SaveChangesAsync();
 
                 if (!result) return Result<Unit>.Failure("Failed to create Article");
 

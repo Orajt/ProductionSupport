@@ -44,8 +44,6 @@ namespace Application.Files
 
                 var path=Path.Combine(_env.WebRootPath,file.Path);
                 
-
-                // var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
                 var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
                 string contentType = "image/jpeg";
                 if (file.FileType == "pdf")

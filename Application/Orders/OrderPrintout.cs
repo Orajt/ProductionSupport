@@ -9,6 +9,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 using Microsoft.AspNetCore.Hosting;
+using Application.Interfaces;
 
 namespace Application.Orders
 {
@@ -24,8 +25,10 @@ namespace Application.Orders
         {
             private readonly DataContext _context;
             private readonly IWebHostEnvironment _env;
-            public Handler(DataContext context, IWebHostEnvironment env)
+            private readonly IRelations _relations;
+            public Handler(DataContext context, IWebHostEnvironment env, IRelations relations)
             {
+                _relations = relations;
                 _env = env;
                 _context = context;
             }
@@ -52,7 +55,7 @@ namespace Application.Orders
 
                 if (articleType == null) return null;
 
-                Core.Relations.FindEveryParentToArticleType(articleTypesToGoThrough, request.ArticleTypeId);
+                _relations.FindEveryParentToArticleType(articleTypesToGoThrough, request.ArticleTypeId);
 
                 articleTypesToGoThrough.Add(request.ArticleTypeId);
 
@@ -105,7 +108,7 @@ namespace Application.Orders
                 List<Table> tabels = new List<Table>();
                 List<Image> images = new List<Image>();
                 ///////Font///////////////
-                var fontPath = Path.Combine(_env.WebRootPath,"fonts","NotoSans-Light.ttf");
+                var fontPath = Path.Combine(_env.WebRootPath, "fonts", "NotoSans-Light.ttf");
                 PdfFont normalFont = PdfFontFactory.CreateFont(fontPath, "Identity-H", pdf);
 
                 var groupedArticles = articleList.GroupBy(p => p.StuffId).ToList();
@@ -120,9 +123,9 @@ namespace Application.Orders
                     .SetFontSize(12);
 
                     var stuffName = group.First().Stuff;
-                    if(request.ArticleTypeId!=4)
+                    if (request.ArticleTypeId != 4)
                     {
-                        stuffName="";
+                        stuffName = "";
                     }
                     Paragraph header = new Paragraph($"{stuffName} Order: {order.Name}")
                      .SetFont(normalFont)
@@ -137,7 +140,7 @@ namespace Application.Orders
                     ///////Create group table//////////
                     tabels.Add(new Table(20, true));
                     var actualTab = tabels[tabels.Count - 1];
-                    
+
 
                     /////////Table header///////////
                     cells.Add(Core.PdfElements.CreateHeaderCell("PDF FILE", 1, 4, normalFont));
@@ -151,7 +154,7 @@ namespace Application.Orders
                     cells.Add(Core.PdfElements.CreateHeaderCell("PARENTS", 1, 6, normalFont));
                     actualTab.AddCell(cells[cells.Count - 1]);
 
-                     document.Add(actualTab);
+                    document.Add(actualTab);
                     //////////Table rows////////////////
                     foreach (var article in group.OrderBy(p => p.Width).ThenBy(p => p.Height).ThenBy(p => p.Length).ThenBy(p => p.ArticleName))
                     {

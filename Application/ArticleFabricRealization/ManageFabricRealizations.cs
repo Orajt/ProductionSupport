@@ -50,7 +50,6 @@ namespace Application.ArticleFabricRealization
                 var usedStuffs = request.QuanityGroups.Select(p => p.StuffId).Distinct().ToList();
                 var stuffs = await _context.Stuffs.Where(p => usedStuffs.Contains(p.Id)).ToListAsync();
 
-                var groupList = new List<Domain.ArticleFabricRealizationGroup>();
                 var newArticleFabricRealziations = new List<Domain.ArticleFabricRealization>();
                 foreach (var group in request.QuanityGroups)
                 {

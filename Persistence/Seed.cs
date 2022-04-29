@@ -53,6 +53,82 @@ namespace Persistence
                  };
                  await context.ArticleTypesStuffs.AddRangeAsync(ArticleTypesStuffs);
 
+                var fabricVariants = new List<FabricVariant>(){
+                    new FabricVariant{FullName="KORPUS", ShortName="K"},
+                    new FabricVariant{FullName="PODUSZKA OPARCIOWA", ShortName="POP"},
+                    new FabricVariant{FullName="PODUSZKA SIEDZENIOWA", ShortName="PS"},
+                    new FabricVariant{FullName="ZAGLOWEK", ShortName="Z"},
+                };
+                await context.FabricVariants.AddRangeAsync(fabricVariants);
+                var fabricVariantGroups=new List<FabricVariantGroup>()
+                {
+                    new FabricVariantGroup{Name="K+PO+PS+Z"},
+                    new FabricVariantGroup{Name="K+PO+PS"},
+
+                };
+                await context.FabricVariantGroups.AddRangeAsync(fabricVariantGroups);
+                var fabricVariantsGroupVariants = new List<FabricVariantFabricGroupVariant>()
+                {
+                    new FabricVariantFabricGroupVariant
+                    {
+                        FabricVariantId= fabricVariants[0].Id,
+                        FabricVariant= fabricVariants[0],
+                        FabricVariantGroupId= fabricVariantGroups[0].Id,
+                        FabricVariantGroup= fabricVariantGroups[0],
+                        PlaceInGroup=1
+                    },
+                    new FabricVariantFabricGroupVariant
+                    {
+                        FabricVariantId= fabricVariants[1].Id,
+                        FabricVariant= fabricVariants[1],
+                        FabricVariantGroupId= fabricVariantGroups[0].Id,
+                        FabricVariantGroup= fabricVariantGroups[0],
+                        PlaceInGroup=2
+                    },
+                    new FabricVariantFabricGroupVariant
+                    {
+                        FabricVariantId= fabricVariants[2].Id,
+                        FabricVariant= fabricVariants[2],
+                        FabricVariantGroupId= fabricVariantGroups[0].Id,
+                        FabricVariantGroup= fabricVariantGroups[0],
+                        PlaceInGroup=3
+                    },
+                     new FabricVariantFabricGroupVariant
+                    {
+                        FabricVariantId= fabricVariants[3].Id,
+                        FabricVariant= fabricVariants[3],
+                        FabricVariantGroupId= fabricVariantGroups[0].Id,
+                        FabricVariantGroup= fabricVariantGroups[0],
+                        PlaceInGroup=4
+                    },
+                    //----------------//
+                    new FabricVariantFabricGroupVariant
+                    {
+                        FabricVariantId= fabricVariants[0].Id,
+                        FabricVariant= fabricVariants[0],
+                        FabricVariantGroupId= fabricVariantGroups[1].Id,
+                        FabricVariantGroup= fabricVariantGroups[1],
+                        PlaceInGroup=1
+                    },
+                    new FabricVariantFabricGroupVariant
+                    {
+                        FabricVariantId= fabricVariants[1].Id,
+                        FabricVariant= fabricVariants[1],
+                        FabricVariantGroupId= fabricVariantGroups[1].Id,
+                        FabricVariantGroup= fabricVariantGroups[1],
+                        PlaceInGroup=2
+                    },
+                    new FabricVariantFabricGroupVariant
+                    {
+                        FabricVariantId= fabricVariants[2].Id,
+                        FabricVariant= fabricVariants[2],
+                        FabricVariantGroupId= fabricVariantGroups[1].Id,
+                        FabricVariantGroup= fabricVariantGroups[1],
+                        PlaceInGroup=3
+                    }
+                };
+                await context.FabricVariantsGroupVariants.AddRangeAsync(fabricVariantsGroupVariants);
+
                 // ---------Families---------//
                 var families = new List<Familly>()
                 {
@@ -62,13 +138,6 @@ namespace Persistence
                     new Familly{Name="Kaya"},
                 };
                 await context.Famillies.AddRangeAsync(families);
-
-                // ---------Articles---------//
-                var finishedFurniture = articleTypes.FirstOrDefault(p => p.Name == "Finished furniture");
-                var frameSet = articleTypes.FirstOrDefault(p => p.Name == "Frame set");
-                var chipboard15mm = stuffs.FirstOrDefault(p => p.Name == "Chipboard 15mm");
-                var coniferousLumber = stuffs.FirstOrDefault(p => p.Name == "Coniferous lumber");
-
 
                 var companies = new List<Company>()
                 {
@@ -105,6 +174,7 @@ namespace Persistence
 
                 };
                 context.DeliveryPlaces.AddRange(deliveryPlaces);
+
                 // ---------Users---------//
                 var users = new List<AppUser>
                 {

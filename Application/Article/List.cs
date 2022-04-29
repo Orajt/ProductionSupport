@@ -29,6 +29,7 @@ namespace Application.Article
             public async Task<Result<PagedList<ListDto>>> Handle(Query request, CancellationToken cancellationToken)
             {
                 var queryString = ListHelpers.CreateQueryString(request.Filters);
+                
                 var articlesQuery = _context.Articles
                     .OrderBy(p=>p.FullName)
                     .ProjectTo<ListDto>(_mapper.ConfigurationProvider)
@@ -40,11 +41,6 @@ namespace Application.Article
                 var result=await PagedList<ListDto>.CreateAsync(articlesQuery, request.PagingParams.PageNumber,
                         request.PagingParams.PageSize);
 
-                // foreach(var el in result)
-                // {
-                //     el.EditDate=DateHelpers.SetDateTimeToCurrent(el.EditDate);
-                //     el.CreateDate=DateHelpers.SetDateTimeToCurrent(el.CreateDate);
-                // }
                 return Result<PagedList<ListDto>>.Success(result);
             }
         }
