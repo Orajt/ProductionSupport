@@ -4,16 +4,19 @@ Basics information:
 
 Architecture: MVC with MediatR pattern on API
 
-Used tehcnologies: .NET 6.0, React, typescript, EF core, Axios, Identity, MobX, React semantic ui, JWT Token, Docker, Deployed to Azure.
+Used tehcnologies: .NET 6.0, EF core, NUnit, React, typescript, Axios, Identity, MobX, React semantic ui, JWT Token, Docker, Deployed to Azure.
 
-Libraries .NET: Automapper, Linq Dynamic, Swashbuckle, ImageSharp, itext7, QRCoder
+Libraries .NET: Automapper, Linq Dynamic, Swashbuckle, ImageSharp, itext7, QRCoder, 
 
 Libraries React: Formik, yup, react-select, react-router-dom, react-pdf, react-toastify, react-dropzone
 
-Link to azure: http://mjasiukiewicz.germanywestcentral.azurecontainer.io/
+Link to azure: http://mjasiukiewicz.germanywestcentral.azurecontainer.io/t
 
 login: admin@test.com
 pw: Pa$$w0rd
+
+Securityheader raport:
+![image](https://user-images.githubusercontent.com/35630427/165917211-dd7d1dc8-e81f-4306-a041-40eb3afe2334.png)
 -------------------------------------------------------------------------------
 About the app:
 
@@ -22,7 +25,11 @@ App based on articles, and orders that used previously created articles. App pro
 
 Articles have tree structure. This is provided by many-to-many self-reference relations between
 articles. Thats because every article could be attached to many parent articles with diffrent
-quanity. Every article has article type, that defines required attributes, and relations between other articles. E.g article type: frame set, can't be asigned to accessories, but it can be assigned to finished furniture. App also stores images and pdf files with documentation in wwwroot folder. 
+quanity. Every article has article type, that defines required attributes, and relations between other articles. E.g article type: frame set, can't be asigned to accessories, but it can be assigned to finished furniture. Few screns about that:
+
+
+
+App also stores images and pdf files with documentation in wwwroot folder. 
 
 Nice feature is that artcile type: finished furniture has property Fabric Variant Group, which is then used in managing order to allow user to choose many fabrics on furniture, and then calculate fabrics lentgth which is needed to craete sofa. Aditional difficulty is that every fabric is cutting in diffrent ways, in result fabric length is diffrent for various types of fabrics.  
 
