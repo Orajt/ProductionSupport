@@ -69,11 +69,10 @@ public class DataContext : IdentityDbContext<AppUser>
         modelBuilder.Entity<OrderPosition>()
             .Property(p => p.FabricPirce)
             .HasColumnType("decimal(6,2)");
-
         modelBuilder.Entity<OrderPosition>()
             .HasMany(pt => pt.Realizations)
             .WithOne(pt => pt.OrderPosition)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
     }
 }

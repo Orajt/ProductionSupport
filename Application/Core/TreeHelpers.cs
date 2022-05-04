@@ -5,7 +5,7 @@ namespace Application.Core
 {
     public static class TreeHelpers
     {
-        public static async void CalculateArticlesBasedOnArticleType(List<Application.Orders.OrderPrintoutDto> result, int articleId, int multiplier, string parentName, int countInParent, int articleTypeToCalculate, DataContext context, List<int> articleTypesToGoThrough)
+        public static async void CalculateArticlesBasedOnArticleType(List<Application.Orders.OrderCalculationHelper> result, int articleId, int multiplier, string parentName, int countInParent, int articleTypeToCalculate, DataContext context, List<int> articleTypesToGoThrough)
         {
             var articleInList = result.FirstOrDefault(p => p.ArticleId == articleId);
 
@@ -30,7 +30,7 @@ namespace Application.Core
 
             if (article.ArticleTypeId == articleTypeToCalculate)
             {
-                var newItem = new Orders.OrderPrintoutDto
+                var newItem = new Orders.OrderCalculationHelper
                 {
                     ArticleId = articleId,
                     ArticleName = article.FullName,

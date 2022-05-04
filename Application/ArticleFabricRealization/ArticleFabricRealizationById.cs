@@ -1,4 +1,5 @@
 using Application.Core;
+using Application.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -7,63 +8,59 @@ namespace Application.ArticleFabricRealization
 {
     public class ListFabricRealizationById
     {
-        public class Query : IRequest<Result<ArticleFRDetails>>
+        public class Query : IRequest<Result<ArticleFRDetailsDto>>
         {
             public int ArticleId { get; set; }
         }
 
-        public class Handler : IRequestHandler<Query, Result<ArticleFRDetails>>
+        public class Handler : IRequestHandler<Query, Result<ArticleFRDetailsDto>>
         {
-            private readonly DataContext _context;
+            private readonly IUnitOfWork _unitOfWork;
 
-            public Handler(DataContext context)
+            public Handler(IUnitOfWork unitOfWork)
             {
-                _context = context;
+                _unitOfWork = unitOfWork;
             }
 
-            public async Task<Result<ArticleFRDetails>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<Result<ArticleFRDetailsDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var article = await _context.Articles
-                    .Include(p=>p.Realizations)
-                        .ThenInclude(p=>p.Stuff)
-                    .Include(p=>p.FabricVariant)
-                    .FirstOrDefaultAsync(p=>p.Id==request.ArticleId);
-                
-                var gowno = article.ArticleTypeId;
+                var article = await _unitOfWork.Articles.GetArticleWithFabricVarGroupAndRealizations(request.ArticleId);
+
+                if (article == null) return null;
 
                 var fabricRealizationsGrouped = article.Realizations
-                    .OrderBy(p=>p.StuffId)
-                    .GroupBy(p=>p.StuffId)
+                    .OrderBy(p => p.StuffId)
+                    .GroupBy(p => p.StuffId)
                     .ToList();
 
 
-                var result = new ArticleFRDetails();
-                result.ArticleName=article.FullName;
-                result.VariantGroup=article.FabricVariant.Name;
+                var result = new ArticleFRDetailsDto();
+                result.ArticleName = article.FullName;
+                result.VariantGroup = article.FabricVariant.Name;
 
-                foreach(var stuffGroup in fabricRealizationsGrouped)
+                foreach (var stuffGroup in fabricRealizationsGrouped)
                 {
                     var newGroup = new ArticleFRByStuff()
                     {
-                        StuffName=stuffGroup.First().Stuff.Name,
-                        StuffId=stuffGroup.Key
+                        StuffName = stuffGroup.First().Stuff.Name,
+                        StuffId = stuffGroup.Key
                     };
 
-                    foreach(var group in stuffGroup)
+                    foreach (var group in stuffGroup)
                     {
                         newGroup.GroupsQuanities.Add(new QuanityPerGroup
                         {
-                            GroupId=group.Id,
-                            CalculatedCode=group.CalculatedCode,
-                            StuffId=stuffGroup.Key,
-                            QuanityChaanged=false,
-                            Quanity=group.FabricLength
+                            GroupId = group.Id,
+                            CalculatedCode = group.CalculatedCode,
+                            StuffId = stuffGroup.Key,
+                            QuanityChaanged = false,
+                            Quanity = group.FabricLength
                         });
                     }
-                    newGroup.GroupsQuanities.OrderBy(p=>p.CalculatedCode).ToList();
+                    newGroup.GroupsQuanities.OrderBy(p => p.CalculatedCode).ToList();
                     result.GroupByStuffList.Add(newGroup);
                 }
-                return Result<ArticleFRDetails>.Success(result);
+                return Result<ArticleFRDetailsDto>.Success(result);
             }
         }
     }

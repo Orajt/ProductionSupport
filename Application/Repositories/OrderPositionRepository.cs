@@ -1,4 +1,5 @@
 using Application.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 namespace Application.Repositories
@@ -8,6 +9,11 @@ namespace Application.Repositories
         public OrderPositionRepository(DataContext context) : base(context)
         {
 
+        }
+
+        public async Task<bool> AnyPositionsWithArticleId(int articleId)
+        {
+            return await _context.OrderPositions.AnyAsync(p=>p.ArticleId==articleId);
         }
     }
 }

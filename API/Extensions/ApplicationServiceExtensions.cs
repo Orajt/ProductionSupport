@@ -2,7 +2,6 @@ using Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Persistence;
-using Infrastructure;
 using Infrastructure.Security;
 using MediatR;
 using Application.ProductionDepartment;
@@ -42,6 +41,7 @@ namespace API.Extensions
             services.AddAutoMapper(typeof(MappingProfiles).Assembly);
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<IUserAccessor, UserAccessor>();
+
             services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddTransient<IArticleRepository, ArticleRepository>();
             services.AddTransient<IArticleArticleRepository, ArticleArticleRepository>();
@@ -63,6 +63,7 @@ namespace API.Extensions
             services.AddTransient<IStuffRepository, StuffRepository>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IRelations, Relations>();
+            services.AddTransient<IListHelpers, ListHelpers>();
             services.AddSingleton<ICalculateFabricsCreatePdf, CalculateFabricsCreatePdf>();
             services.AddTransient<IArticleHelpers, ArticleHelpers>();
             services.AddSignalR();

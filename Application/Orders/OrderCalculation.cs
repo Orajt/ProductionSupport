@@ -13,7 +13,7 @@ using Application.Interfaces;
 
 namespace Application.Orders
 {
-    public class OrderPrintout
+    public class OrderCalculation
     {
         public class Query : IRequest<Result<MyFileResult>>
         {
@@ -59,7 +59,7 @@ namespace Application.Orders
 
                 articleTypesToGoThrough.Add(request.ArticleTypeId);
 
-                var articleList = new List<OrderPrintoutDto>();
+                var articleList = new List<OrderCalculationHelper>();
 
                 foreach (var orderPosition in order.OrderPositions)
                 {
@@ -72,7 +72,7 @@ namespace Application.Orders
                             continue;
                         }
 
-                        var newItem = new OrderPrintoutDto()
+                        var newItem = new OrderCalculationHelper()
                         {
                             ArticleId = orderPosition.ArticleId,
                             ArticleName = orderPosition.Article.FullName,

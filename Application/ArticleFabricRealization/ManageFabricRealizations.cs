@@ -1,4 +1,5 @@
 using Application.Core;
+using Application.Interfaces;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -24,33 +25,29 @@ namespace Application.ArticleFabricRealization
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
-            private readonly DataContext _context;
-            public Handler(DataContext context)
+            private readonly IUnitOfWork _unitOfWork;
+            public Handler(IUnitOfWork unitOfWork)
             {
-                _context = context;
+                _unitOfWork = unitOfWork;
             }
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
 
-                var article = await _context.Articles
-                    .Include(p => p.FabricVariant)
-                        .ThenInclude(p => p.FabricVariants)
-                    .Include(p => p.Realizations)
-                    .FirstOrDefaultAsync(p => p.Id == request.ArticleId);
+                var article = await _unitOfWork.Articles.GetArticleWithFabricVarGroupWithDetailsAndRealizations(request.ArticleId);
 
                 var orderedVariants = article.FabricVariant.FabricVariants.OrderBy(p => p.PlaceInGroup).ToList();
 
                 var remainingGroups = request.QuanityGroups.Select(p => p.GroupId).ToList();
 
                 var realizationsToDelete = article.Realizations.Where(p => !remainingGroups.Contains(p.Id));
-
-                _context.ArticleFabricRealizations.RemoveRange(realizationsToDelete);
+                _unitOfWork.ArticlesFabricRealizations.RemoveRange(realizationsToDelete);
 
                 var usedStuffs = request.QuanityGroups.Select(p => p.StuffId).Distinct().ToList();
-                var stuffs = await _context.Stuffs.Where(p => usedStuffs.Contains(p.Id)).ToListAsync();
+                var stuffs =await  _unitOfWork.Stuffs.Where(p => usedStuffs.Contains(p.Id));
 
                 var newArticleFabricRealziations = new List<Domain.ArticleFabricRealization>();
+
                 foreach (var group in request.QuanityGroups)
                 {
                     if (group.GroupId != 0 && group.QuanityChaanged)
@@ -70,13 +67,13 @@ namespace Application.ArticleFabricRealization
                             CalculatedCode = group.CalculatedCode,
                             StuffId = group.StuffId,
                             Stuff = stuff,
-                            FabricLength = (float)Math.Round(group.Quanity,3)
+                            FabricLength = (float)Math.Round(group.Quanity, 3)
                         });
                     }
                 }
-                _context.ArticleFabricRealizations.AddRange(newArticleFabricRealziations);
+                _unitOfWork.ArticlesFabricRealizations.AddRange(newArticleFabricRealziations);
 
-                var result = await _context.SaveChangesAsync() > 0;
+                var result = await _unitOfWork.SaveChangesAsync();
 
                 if (!result) return Result<Unit>.Failure("Failed to manage fabric realizations");
 

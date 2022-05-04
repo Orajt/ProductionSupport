@@ -8,7 +8,7 @@ using Application.Core;
 using System.Collections.Generic;
 using System;
 
-namespace Application.Tests;
+namespace Application.Tests.Mocking.Article;
 
 [TestFixture]
 public class CreateArticleTests
@@ -30,7 +30,7 @@ public class CreateArticleTests
         _articleType = new Domain.ArticleType() { Id = 1 };
         var date = DateTime.Now;
         _unitOfWork = new Mock<IUnitOfWork>();
-        _unitOfWork.Setup(uow => uow.Articles.IsArticleNameUnique("a", 1, 1)).ReturnsAsync(false);
+        _unitOfWork.Setup(uow => uow.Articles.IsArticleNameUsed("a", 1, 1)).ReturnsAsync(false);
         _unitOfWork.Setup<Task<Domain.ArticleType>>(uow => uow.ArticleTypes.Find(1)).ReturnsAsync(_articleType);
         _unitOfWork.Setup<Task<ArticleAdditionalProperties>>(uow => uow.Articles.FindAdditionalProperties(1, 1, 1)).ReturnsAsync(_articleAdditionalProperties);
         _unitOfWork.Setup(uow=> uow.Articles.Add(It.IsAny<Domain.Article>()));
@@ -66,7 +66,7 @@ public class CreateArticleTests
     [Test]
     public async Task ArticleCreate_ArticleWithSameNameAndStuffExistInDataBase1_ReturnResultFailure()
     {
-        _unitOfWork.Setup(uow => uow.Articles.IsArticleNameUnique("a", 1, 1)).ReturnsAsync(true);
+        _unitOfWork.Setup(uow => uow.Articles.IsArticleNameUsed("a", 1, 1)).ReturnsAsync(true);
         var handler = new Create.Handler(_unitOfWork.Object, _relations.Object, _articleHelpers.Object);
         var result = await handler.Handle(_command, CancellationToken.None);
         Assert.That(result.Error.Length, Is.GreaterThan(0));

@@ -45,7 +45,7 @@ namespace Application.Calculation
                         HandleResultToArticleType6(position);
                         continue;
                     }
-                    ///If article type is 1 then fabric has to be calculated///
+                    ///If article type is 1 then fabrics have to be calculated///
                     if (positionArticleType == 1)
                     {
                         var positionRealizationsList = RealizationsGroupedByIdAndCreateCodeForEveryGroup(position);

@@ -1,4 +1,5 @@
 using Application.Core;
+using Application.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
@@ -12,37 +13,32 @@ namespace Application.Orders
     {
         public class Query : IRequest<Result<PagedList<ListDto>>>
         {
-            public PagingParams PagingParams{get;set;}
-            public List<FilterResult> Filters{get;set;}
+            public PagingParams PagingParams { get; set; }
+            public List<FilterResult> Filters { get; set; }
         }
         public class Handler : IRequestHandler<Query, Result<PagedList<ListDto>>>
         {
-            private readonly DataContext _context;
-            private readonly IMapper _mapper;
-            public Handler(DataContext context, IMapper mapper)
+            private readonly IListHelpers _listHelpers;
+            private readonly IUnitOfWork _unitOfWork;
+            public Handler(IListHelpers listHelpers, IUnitOfWork unitOfWork)
             {
-                _mapper = mapper;
-                _context = context;
+                _unitOfWork = unitOfWork;
+                _listHelpers = listHelpers;
+
             }
             public async Task<Result<PagedList<ListDto>>> Handle(Query request, CancellationToken cancellationToken)
             {
 
-                var queryString = ListHelpers.CreateQueryString(request.Filters);
-                var query =_context.Orders.ProjectTo<ListDto>(_mapper.ConfigurationProvider).AsQueryable();
+                var queryString = _listHelpers.CreateQueryString(request.Filters);
+                var query = _unitOfWork.Orders.GetOrdersQueryMappedToListDto();
 
-                if(!String.IsNullOrEmpty(queryString)){
-                    query=query.Where(queryString);
+                if (!String.IsNullOrEmpty(queryString))
+                {
+                    query = query.Where(queryString);
                 }
-
-                var result=await PagedList<ListDto>.CreateAsync(query, request.PagingParams.PageNumber,
+                var result = await PagedList<ListDto>.CreateAsync(query, request.PagingParams.PageNumber,
                         request.PagingParams.PageSize);
-                     
-                // foreach(var el in result)
-                // {
-                //     el.EditDate=DateHelpers.SetDateTimeToCurrent(el.EditDate);
-                //     el.ProductionDate=DateHelpers.SetDateTimeToCurrent(el.ProductionDate);
-                //     el.ShipmentDate=DateHelpers.SetDateTimeToCurrent(el.ShipmentDate);
-                // }
+
                 return Result<PagedList<ListDto>>.Success(result);
             }
         }

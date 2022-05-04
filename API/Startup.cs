@@ -1,7 +1,6 @@
 using API.Extensions;
 using Application.ProductionDepartment;
 using FluentValidation.AspNetCore;
-using Microsoft.Extensions.FileProviders;
 
 namespace API
 {

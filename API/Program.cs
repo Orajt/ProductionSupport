@@ -2,7 +2,6 @@ using Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
-using API;
 
 namespace API
 {

@@ -12,7 +12,7 @@ namespace Application.Core
                 .ForMember(d => d.EditDate, s => s.MapFrom(s => s.EditDate))
                 .ForMember(d => d.CreateDate, s => s.MapFrom(s => s.CreateDate));
 
-                CreateMap<Domain.ArticleFilePath, Article.DetailFileDto>();
+            CreateMap<Domain.ArticleFilePath, Article.DetailFileDto>();
 
              CreateMap<Domain.Article, Article.DetailsDto>()
                 .ForMember(d => d.ArticleTypeName, s => s.MapFrom(s => s.ArticleType.Name))

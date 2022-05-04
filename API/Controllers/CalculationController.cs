@@ -11,7 +11,7 @@ namespace API.Controllers
             Result<Application.Core.MyFileResult> result = null;
             if(articleTypeId!=6)
             {
-                result = await Mediator.Send(new Application.Orders.OrderPrintout.Query{OrderId=orderId, ArticleTypeId=articleTypeId});
+                result = await Mediator.Send(new Application.Orders.OrderCalculation.Query{OrderId=orderId, ArticleTypeId=articleTypeId});
             }
             if(articleTypeId==6)
             {
@@ -24,13 +24,7 @@ namespace API.Controllers
             fileStreamResult.FileDownloadName=result.Value.FileName;
             Response.Headers.Add("Access-Control-Expose-Headers","Content-Disposition");
             return fileStreamResult;
-        }
-        // [HttpPost]
-        // public async Task<IActionResult> Gowno()
-        // {
-        //     return HandleResult(await Mediator.Send(new Application.Article.ChaangeDates.Query()));
-        // }
-       
+        }      
 
     }
 }

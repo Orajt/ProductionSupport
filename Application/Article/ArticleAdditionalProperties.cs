@@ -5,7 +5,5 @@ namespace Application.Article
         public Domain.Familly Familly { get; set; } = null;
         public Domain.Stuff Stuff { get; set; } = null;
         public Domain.FabricVariantGroup FabricVariantGroup { get; set; } = null;
-
-
     }
 }

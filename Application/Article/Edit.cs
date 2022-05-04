@@ -1,10 +1,7 @@
 using Application.Core;
 using Application.Interfaces;
-using AutoMapper;
 using FluentValidation;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Persistence;
 
 namespace Application.Article
 {
@@ -49,7 +46,7 @@ namespace Application.Article
                 var article = await _unitOfWork.Articles.GetArticleWithChildRelationsById(request.Id);
                 if (article == null) return null;
                 if (article.FullName != request.FullName &&
-                    await _unitOfWork.Articles.IsArticleNameUnique(request.FullName, article.ArticleTypeId, request.StuffId))
+                    await _unitOfWork.Articles.IsArticleNameUsed(request.FullName, article.ArticleTypeId, request.StuffId))
                 {
                     return Result<Unit>.Failure("Article with choosen parameters exist in DataBase");
                 }
@@ -60,7 +57,7 @@ namespace Application.Article
 
                 if (article.FabricVariantGroupId != request.FabricVariantGroupId)
                 {
-                    var fabricRealizationsToDelete = _unitOfWork.ArticlesFabricRealizations.Where(p => p.ArticleId == article.Id);
+                    var fabricRealizationsToDelete = await _unitOfWork.ArticlesFabricRealizations.Where(p => p.ArticleId == article.Id);
                     _unitOfWork.ArticlesFabricRealizations.RemoveRange(fabricRealizationsToDelete);
                 }
                 article = _articleHelpers.ReplaceArticleProperitiesToNewer(article, newArticleProperties, request);
@@ -99,7 +96,6 @@ namespace Application.Article
                         var articleNewComponentsToAdd = await _unitOfWork.ArticlesArticles.GetComponentsToParentAricle(components: articleNewComponents, parent: article);
                         if (articleNewComponentsToAdd.Count == 0)
                             return Result<Unit>.Failure($"One or more child article types doesnt match to parent article");
-                        if (articleNewComponentsToAdd == null) return null;
                         if (articleNewComponentsToAdd.Count > 0)
                         {
                             _unitOfWork.ArticlesArticles.AddRange(articleNewComponentsToAdd);

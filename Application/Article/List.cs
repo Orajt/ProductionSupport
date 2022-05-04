@@ -1,4 +1,5 @@
 using Application.Core;
+using Application.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
@@ -12,33 +13,31 @@ namespace Application.Article
     {
         public class Query : IRequest<Result<PagedList<ListDto>>>
         {
-            public PagingParams PagingParams{get;set;}
-            public List<FilterResult> Filters{get;set;}
+            public PagingParams PagingParams { get; set; }
+            public List<FilterResult> Filters { get; set; }
         }
 
         public class Handler : IRequestHandler<Query, Result<PagedList<ListDto>>>
         {
-            private readonly DataContext _context;
-            private readonly IMapper _mapper;
-            public Handler(DataContext context, IMapper mapper)
+            private readonly IUnitOfWork _unitOfWork;
+            private readonly IListHelpers _listHelpers;
+            public Handler(IUnitOfWork unitOfWork, IListHelpers listHelpers)
             {
-                _mapper = mapper;
-                _context = context;
+                _listHelpers = listHelpers;
+                _unitOfWork = unitOfWork;
             }
 
             public async Task<Result<PagedList<ListDto>>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var queryString = ListHelpers.CreateQueryString(request.Filters);
-                
-                var articlesQuery = _context.Articles
-                    .OrderBy(p=>p.FullName)
-                    .ProjectTo<ListDto>(_mapper.ConfigurationProvider)
-                    .AsQueryable();
-                
-                if(!String.IsNullOrEmpty(queryString)){
-                    articlesQuery=articlesQuery.Where(queryString);
+                var queryString = _listHelpers.CreateQueryString(request.Filters);
+
+                var articlesQuery = _unitOfWork.Articles.GetArticlesQueryMappedToListDto();
+
+                if (!String.IsNullOrEmpty(queryString))
+                {
+                    articlesQuery = articlesQuery.Where(queryString);
                 }
-                var result=await PagedList<ListDto>.CreateAsync(articlesQuery, request.PagingParams.PageNumber,
+                var result = await PagedList<ListDto>.CreateAsync(articlesQuery, request.PagingParams.PageNumber,
                         request.PagingParams.PageSize);
 
                 return Result<PagedList<ListDto>>.Success(result);

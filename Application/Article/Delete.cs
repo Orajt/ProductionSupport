@@ -1,8 +1,6 @@
 using Application.Core;
-using FluentValidation;
+using Application.Interfaces;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Persistence;
 
 namespace Application.Article
 {
@@ -10,42 +8,31 @@ namespace Application.Article
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public int Id {get;set;}
-        }
-
-        public class CommandValidator : AbstractValidator<Command>
-        {
-            public CommandValidator()
-            {
-               
-            }
+            public int Id { get; set; }
         }
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
-            private readonly DataContext _context;
+            private readonly IUnitOfWork _unitOfWork;
 
-            public Handler(DataContext context)
+            public Handler(IUnitOfWork unitOfWork)
             {
-                _context = context;
+                _unitOfWork = unitOfWork;
             }
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var article= await _context.Articles
-                .Include(p=>p.ChildRelations)
-                .Include(p=>p.ParentRelations)
-                .FirstOrDefaultAsync(p=>p.Id==request.Id);
+                var article = await _unitOfWork.Articles.GetArticleWithChildAndParentRelations(request.Id);
 
-                if(article==null) return null;
+                if (article == null) return null;
 
-                if(await _context.OrderPositions.AnyAsync(p=>p.ArticleId==request.Id))
-                    Result<Unit>.Failure("You cant delete article that was ordered before");
-                
-                _context.RemoveRange(article.ChildRelations.Concat(article.ParentRelations));
-                _context.Articles.Remove(article);
+                if (await _unitOfWork.OrderPositions.AnyPositionsWithArticleId(article.Id))
+                    Result<Unit>.Failure("You cant delete article that was used in ordered");
 
-                var result = await _context.SaveChangesAsync() > 0;
+                _unitOfWork.ArticlesArticles.RemoveRange(article.ChildRelations.Concat(article.ParentRelations));
+                _unitOfWork.Articles.Remove(article);
+
+                var result = await _unitOfWork.SaveChangesAsync();
 
                 if (!result) return Result<Unit>.Failure("Failed to delete Article");
 

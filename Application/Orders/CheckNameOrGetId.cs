@@ -26,8 +26,7 @@ namespace Application.Orders
                 if(request.Predicate=="CHECK"){
                     var isAny = await _context.Orders.AnyAsync(p=>p.Name.ToUpper()==request.Name.ToUpper());
                     return Result<int>.Success(isAny? 1:0);
-                }
-                    
+                }     
                 
                 var order = await _context.Orders.Select(p=>new {p.Id, p.Name})
                     .FirstOrDefaultAsync(p=>p.Name.ToUpper()==request.Name.ToUpper());

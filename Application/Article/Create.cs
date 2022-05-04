@@ -48,7 +48,7 @@ namespace Application.Article
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                if (await _unitOfWork.Articles.IsArticleNameUnique(request.FullName, request.ArticleTypeId, request.StuffId))
+                if (await _unitOfWork.Articles.IsArticleNameUsed(request.FullName, request.ArticleTypeId, request.StuffId))
                 {
                     return Result<Unit>.Failure("Article with choosen parameters exist in DataBase");
                 }

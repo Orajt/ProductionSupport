@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Domain;
 
 namespace Application.OrderPosition
 {
@@ -21,9 +22,11 @@ namespace Application.OrderPosition
         public List<PositionRealization> FabricRealization { get; set; } = new List<PositionRealization>();
         public int SetId { get; set; }
         [JsonIgnore]
-        public bool SetIdFromDB { get; set; } = false;
+        public bool SetIdFromDB { get; set; } = true;
         [JsonIgnore]
-        public int? IndexOfSetList { get; set; } = null;
+        public Domain.OrderPosition OrderPositionRefersTo=null;
+        [JsonIgnore]
+        public Domain.Set RelatedSet{get;set;} = null;
 
     }
 }

@@ -1,6 +1,7 @@
 using Application.Core;
 using Application.Interfaces;
 using Application.Repositories;
+using AutoMapper;
 using Persistence;
 
 namespace Application.UnitOfWork
@@ -9,11 +10,13 @@ namespace Application.UnitOfWork
     {
         private readonly DataContext _context;
         private readonly IRelations _relations;
-        public UnitOfWork(DataContext context, IRelations relations)
+        private readonly IMapper _mapper;
+        public UnitOfWork(DataContext context, IRelations relations, IMapper mapper)
         {
+            _mapper = mapper;
             _relations = relations;
             _context = context;
-            Articles = new ArticleRepository(_context);
+            Articles = new ArticleRepository(_context, _mapper);
             ArticlesArticles = new ArticleArticleRepository(_context, _relations);
             ArticlesFabricRealizations = new ArticleFabicRealizationRepository(_context);
             Stuffs = new StuffRepository(_context);
@@ -28,7 +31,7 @@ namespace Application.UnitOfWork
             FabricVariantsGroupVariants = new FabricVariantGroupVariantRepository(_context);
             FabricVariantsGroups = new FabricVariantGroupRepository(_context);
             Famillies = new FamillyRepository(_context);
-            Orders = new OrderRepository(_context);
+            Orders = new OrderRepository(_context, _mapper);
             OrderPositions = new OrderPositionRepository(_context);
             OrderPositionsRealizations = new OrderPositionRealizationRepozitory(_context);
             ProductionDepartments = new ProductionDepartmentRepository(_context);

@@ -1,4 +1,5 @@
 using Application.Core;
+using Application.Interfaces;
 using Domain;
 using FluentValidation;
 using MediatR;
@@ -16,7 +17,7 @@ namespace Application.Orders
             public int DeliveryPlaceId { get; set; }
             public DateTime ShipmentDate { get; set; }
             public DateTime ProductionDate { get; set; }
-            public List<OrderPosition.PositionDto> OrderPositions{get;set;}
+            public List<OrderPosition.PositionDto> OrderPositions { get; set; }
         }
 
         public class CommandValidator : AbstractValidator<Command>
@@ -25,31 +26,31 @@ namespace Application.Orders
             {
                 RuleFor(p => p.Name).NotNull();
                 RuleFor(p => p.DeliveryPlaceId).NotNull();
-
             }
         }
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
-            private readonly DataContext _context;
-            public Handler(DataContext context)
+            private readonly IUnitOfWork _unitOfWork;
+            public Handler(DataContext context, IUnitOfWork unitOfWork)
             {
-                _context = context;
+                _unitOfWork = unitOfWork;
             }
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                
-                var order = await _context.Orders.Include(p=>p.OrderPositions).FirstOrDefaultAsync(p => p.Id == request.Id);
-                if(order==null) return null;
 
-                if (request.Name.ToUpper()!=order.Name.ToUpper() &&  await _context.Orders.AsNoTracking()
-                    .AnyAsync(p => p.Name.ToUpper() == request.Name.ToUpper()))
+                var order = await _unitOfWork.Orders.GetOrderWithOrderPositions(request.Id);
+                if (order == null) return null;
+
+                if (request.Name.ToUpper() != order.Name.ToUpper() && await _unitOfWork.Orders.IsOrderNameTaken(request.Name))
                     return Result<Unit>.Failure($"Order named {request.Name} exist in database");
 
-                if (order.DeliveryPlaceId != request.DeliveryPlaceId){
-                    var deliveryPlace = await _context.DeliveryPlaces.FirstOrDefaultAsync(p => p.Id == request.DeliveryPlaceId);
-                    if (deliveryPlace==null) return null;
+                if (order.DeliveryPlaceId != request.DeliveryPlaceId)
+                {
+                    var deliveryPlace = await _unitOfWork.DeliveryPlaces.Find(request.DeliveryPlaceId);
+                    if (deliveryPlace == null) return null;
+
                     order.DeliveryPlace = deliveryPlace;
                     order.DeliveryPlaceId = deliveryPlace.Id;
                 }
@@ -59,130 +60,55 @@ namespace Application.Orders
                 order.ShipmentDate = request.ShipmentDate.Date;
                 order.ProductionDate = request.ProductionDate.Date;
 
-                var requestPositionsInDB = request.OrderPositions.Where(p=>p.Id!=0).ToList();
-                var requestPositionsNew = request.OrderPositions.Where(p=>p.Id==0).ToList();
+                var requestPositionsInDB = request.OrderPositions.Where(p => p.Id != 0).ToList();
+                var requestPositionsNew = request.OrderPositions.Where(p => p.Id == 0).ToList();
 
-                var requestPositionIds=requestPositionsInDB.Select(p=>p.Id).Distinct().ToList();
+                var requestPositionsInDBIds = requestPositionsInDB.Select(p => p.Id).ToList();
 
-                _context.RemoveRange(order.OrderPositions.Where(p=>!requestPositionIds.Contains(p.Id)));
+                var orderPositionsToRemove = order.OrderPositions.Where(p => !requestPositionsInDBIds.Contains(p.Id)).ToList();
+
+                _unitOfWork.OrderPositions.RemoveRange(orderPositionsToRemove);
 
                 var setList = new List<Domain.Set>();
 
-                foreach(var position in requestPositionsInDB)
+                foreach (var position in requestPositionsInDB)
                 {
-                    var choosenPosition = order.OrderPositions.FirstOrDefault(p=>p.Id==position.Id);
-                    if(choosenPosition==null){
+                    var choosenPosition = order.OrderPositions.FirstOrDefault(p => p.Id == position.Id);
+                    if (choosenPosition == null)
+                    {
                         continue;
                     }
-                    choosenPosition.Quanity=position.Quanity;
-                    choosenPosition.Lp=position.Lp;
-                    choosenPosition.Quanity=position.Quanity;
-                    choosenPosition.Client=position.Client;
-                    var orderPositionWithSameSetId=order.OrderPositions.FirstOrDefault(p=>p.SetId==position.SetId);
-                    if(orderPositionWithSameSetId!=null)
-                    {
-                        choosenPosition.SetId=orderPositionWithSameSetId.SetId;
-                        choosenPosition.Set=orderPositionWithSameSetId.Set;
-                    }
-                    else{
-                        var listOfSameId=requestPositionsNew.Where(p=>p.SetId==position.SetId).ToList();
-                        if(listOfSameId.Count==0)
-                        {
-                            choosenPosition.SetId=null;
-                            choosenPosition.Set=null;
-                            continue;
-                        }
-                        else{
-                            var set=new Set();
-                            _context.Add(set);
-                            setList.Add(set);
-                            choosenPosition.SetId=set.Id;
-                            choosenPosition.Set=set;
-                            for(int i=0;i<listOfSameId.Count;i++)
-                            {
-                                var positionToChaange=requestPositionsNew.FirstOrDefault(p=>p==listOfSameId[i]);
-                                positionToChaange.SetId=set.Id;
-                                positionToChaange.SetIdFromDB=true;
-                                positionToChaange.IndexOfSetList=setList.Count-1;
-                            }
-                        }
-                    }
+                    OrdersHelper.UpdateOrderPosition(choosenPosition, position);
+                    OrdersHelper.UpdatePositionSet(order.OrderPositions, choosenPosition, position);
                 }
-                var usedArticles= requestPositionsNew.Select(p=>p.ArticleId).ToList();
-                var groupedPositions = requestPositionsNew.OrderBy(p=>p.Client).ThenBy(p=>p.SetId).ThenBy(p=>p.Lp).GroupBy(p=>p.SetId).ToList();
-                var usedFabrics = request.OrderPositions.SelectMany(p=>p.FabricRealization).Select(p=>p.FabricId).Distinct().ToList();
+                var usedArticles = requestPositionsNew.Select(p => p.ArticleId).Distinct().ToList();
+                var usedFabrics = request.OrderPositions.SelectMany(p => p.FabricRealization).Select(p => p.FabricId).Distinct().ToList();
                 usedArticles.AddRange(usedFabrics);
+                var articles = await _unitOfWork.Articles.GetArticlesWithFabricVariantsBasedOnArtclesIds(usedArticles);
+                if (articles.Count != usedArticles.Count) return null;
 
-                var articles = await _context.Articles
-                    .Include(p=>p.FabricVariant)
-                        .ThenInclude(p=>p.FabricVariants)
-                    .Where(p=>usedArticles.Contains(p.Id)).ToListAsync();
+                var usedVariants = request.OrderPositions.SelectMany(p => p.FabricRealization).Select(p => p.Id).Distinct().ToList();
+                var variants = await _unitOfWork.FabricVariants.Where(p => usedVariants.Contains(p.Id));
+                if (usedVariants.Count != variants.Count) return null;
 
-                var usedVariants=request.OrderPositions.SelectMany(p=>p.FabricRealization).Select(p=>p.Id).Distinct().ToList();
-
-                var variants= await _context.FabricVariants.Where(p=>usedVariants.Contains(p.Id)).ToListAsync();
-
-                if(usedVariants.Count!=variants.Count) 
-                    return null;
-
-                var newPositionList = new List<Domain.OrderPosition>();
-                var newPositionRealizations= new List<Domain.OrderPositionRealization>();
-                foreach(var group in groupedPositions)
+                foreach(var position in requestPositionsNew)
                 {
-                    var set=new Set();
-                    var setIdDB=group.FirstOrDefault(p=>p.SetIdFromDB==true);
-
-                    if(setIdDB!=null && setIdDB.IndexOfSetList!=null)
-                    {
-                        set=setList[(int)setIdDB.IndexOfSetList];
-                    }
-                    else{
-                        _context.Add(set);
-                    }
-                   
-                    foreach(var position in group)
-                    {
-                        var article = articles.FirstOrDefault(p=>p.Id==position.ArticleId);
-                        if(article==null) return null;
-                        if(article.ArticleTypeId==1)
-                        {
-                            if(article.FabricVariant.FabricVariants.Count!=position.FabricRealization.Count)
-                                return null;
-                        }
-                        var newPosition = new Domain.OrderPosition
-                        {
-                            Order=order,
-                            OrderId=order.Id, 
-                            ArticleId=position.ArticleId,
-                            Article=article,
-                            Quanity=position.Quanity,
-                            Realization=position.Realization,
-                            Lp=position.Lp,
-                            SetId=set.Id,
-                            Set=set,
-                            Client=position.Client
-                        };  
-                       
-                        foreach(var variant in position.FabricRealization.OrderBy(p=>p.PlaceInGroup))
-                        {
-                            newPositionRealizations.Add(new OrderPositionRealization{
-                                OrderPositionId=newPosition.Id,
-                                OrderPosition=newPosition,
-                                VarriantId=variant.Id,
-                                Variant=variants.FirstOrDefault(p=>p.Id==variant.Id),
-                                Fabric=articles.FirstOrDefault(p=>p.Id==variant.FabricId),
-                                FabricId=variant.FabricId,
-                                PlaceInGroup=variant.PlaceInGroup
-                            });
-                        }
-                        newPositionList.Add(newPosition);
-                    }
+                    var relatedSet = order.OrderPositions.FirstOrDefault(p=>p.SetId==position.SetId);
+                    if(relatedSet!=null) position.RelatedSet=relatedSet.Set;
                 }
-                order.FabricsCalculated=false;
-                order.Done=false;
-                _context.OrderPositions.AddRange(newPositionList);
-                _context.OrderPositionRealizations.AddRange(newPositionRealizations);
-                var result = await _context.SaveChangesAsync() > 0;
+
+                requestPositionsNew.AddRange(requestPositionsInDB.Where(p => p.SetIdFromDB == false).ToList());
+
+                var newPositions = OrdersHelper.CreateNewOrderPositionsOrUpdateSetInOldOnes(requestPositionsNew, order, articles, variants);
+
+                order.FabricsCalculated = false;
+                order.Done = false;
+
+                _unitOfWork.Sets.AddRange(newPositions.Sets);
+                _unitOfWork.OrderPositions.AddRange(newPositions.OrderPositions);
+                _unitOfWork.OrderPositionsRealizations.AddRange(newPositions.OrderPositionRealizations);
+
+                var result = await _unitOfWork.SaveChangesAsync();
 
                 if (!result) return Result<Unit>.Failure("Failed to edit Order");
 

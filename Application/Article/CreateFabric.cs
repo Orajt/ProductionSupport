@@ -1,14 +1,14 @@
 using Application.Core;
+using Application.Interfaces;
 using FluentValidation;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 namespace Application.Article
 {
     public class CreateFabric
     {
-         public class Command : IRequest<Result<Unit>>
+        public class Command : IRequest<Result<Unit>>
         {
             public string FullName { get; set; }
             public int StuffId { get; set; }
@@ -26,21 +26,20 @@ namespace Application.Article
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
-            private readonly DataContext _context;
-            public Handler(DataContext context)
+            private readonly IUnitOfWork _unitOfWork;
+            public Handler(DataContext context, IUnitOfWork unitOfWork)
             {
-                _context = context;
+                _unitOfWork = unitOfWork;
             }
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                if (_context.Articles.Any(p => p.FullName.ToUpper() == request.FullName.ToUpper()
-                                             && p.ArticleTypeId == 6))
+                if (await _unitOfWork.Articles.IsArticleNameUsed(request.FullName, 6, request.StuffId))
                 {
                     return Result<Unit>.Failure("Fabrics with that name exists in database");
                 }
-                var stuff = await _context.Stuffs.FirstOrDefaultAsync(p=>p.Id==request.StuffId);
-                if(stuff==null) return null;
+                var stuff = await _unitOfWork.Stuffs.Find(request.StuffId);
+                if (stuff == null) return null;
 
                 var date = DateTime.Now.Date;
                 var article = new Domain.Article
@@ -50,16 +49,15 @@ namespace Application.Article
                     ArticleTypeId = 6,
                     EditDate = date,
                     CreateDate = date,
-                    CreatedInCompany=false,
-                    HasChild=false,
-                    Stuff=stuff,
-                    StuffId=stuff.Id
+                    CreatedInCompany = false,
+                    HasChild = false,
+                    Stuff = stuff,
+                    StuffId = stuff.Id
                 };
 
-                _context.Articles.Add(article);
+                _unitOfWork.Articles.Add(article);
 
-
-                var result = await _context.SaveChangesAsync() > 0;
+                var result = await _unitOfWork.SaveChangesAsync();
 
                 if (!result) return Result<Unit>.Failure("Failed to create Fabric");
 

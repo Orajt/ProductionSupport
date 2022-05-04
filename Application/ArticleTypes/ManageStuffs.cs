@@ -1,4 +1,5 @@
 using Application.Core;
+using Application.Interfaces;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -24,43 +25,46 @@ namespace Application.ArticleTypes
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
-            private readonly DataContext _context;
-            public Handler(DataContext context)
+            private readonly IUnitOfWork _unitOfWork;
+            public Handler(IUnitOfWork unitOfWork)
             {
-                _context = context;
+                _unitOfWork = unitOfWork;
             }
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var articleType=await _context.ArticleTypes.Include(p=>p.Stuffs).FirstOrDefaultAsync(p=>p.Id==request.Id);
+                var articleType = await _unitOfWork.ArticleTypes.GetArticleTypeWithStuffs(request.Id);
 
-                var stuffListToRemove = articleType.Stuffs.Where(p=>!request.Stuffs.Contains(p.StuffId)).ToList();
+                var relationsBetweenArticleTypeAndStuffsToRemove = articleType.Stuffs.Where(p => !request.Stuffs.Contains(p.StuffId)).ToList();
 
-                if(stuffListToRemove.Count>0)
-                    _context.ArticleTypesStuffs.RemoveRange(stuffListToRemove);
-                
+                if (relationsBetweenArticleTypeAndStuffsToRemove.Count > 0)
+                    _unitOfWork.ArticleTypesStuffs.RemoveRange(relationsBetweenArticleTypeAndStuffsToRemove);
 
-                var stuffsToAssign = await _context.Stuffs.ToListAsync();
+
+                var stuffsToAssign = await _unitOfWork.Stuffs.GetAll();
                 var stuffListToAdd = new List<Domain.ArticleTypeStuff>();
 
-                foreach(var stuffId in request.Stuffs)
+                foreach (var stuffId in request.Stuffs)
                 {
-                    var stuff=stuffsToAssign.FirstOrDefault(p=>p.Id==stuffId);
-                    if(stuff==null) return null;
-                    if(articleType.Stuffs.Any(p=>p.StuffId==stuffId)) continue;
-                    stuffListToAdd.Add(new Domain.ArticleTypeStuff{
-                        ArticleType=articleType,
-                        ArticleTypeId=articleType.Id,
-                        Stuff=stuff,
-                        StuffId=stuff.Id
+                    var stuff = stuffsToAssign.FirstOrDefault(p => p.Id == stuffId);
+                    if (stuff == null) return null;
+
+                    if (articleType.Stuffs.Any(p => p.StuffId == stuffId)) continue;
+
+                    stuffListToAdd.Add(new Domain.ArticleTypeStuff
+                    {
+                        ArticleType = articleType,
+                        ArticleTypeId = articleType.Id,
+                        Stuff = stuff,
+                        StuffId = stuff.Id
                     });
                 }
-                if(stuffListToAdd.Count>0)
-                    _context.ArticleTypesStuffs.AddRange(stuffListToAdd);
+                if (stuffListToAdd.Count > 0)
+                    _unitOfWork.ArticleTypesStuffs.AddRange(stuffListToAdd);
 
-                var result = await _context.SaveChangesAsync() > 0;
+                var result = await _unitOfWork.SaveChangesAsync();
 
-                if (!result) return Result<Unit>.Failure("Failed to assign stuffs");
+                if (!result) return Result<Unit>.Failure("Failed to manage stuffs");
 
                 return Result<Unit>.Success(Unit.Value);
             }

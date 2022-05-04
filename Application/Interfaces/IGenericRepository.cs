@@ -7,7 +7,7 @@ namespace Application.Interfaces
         Task<T> Find(int id);
         Task<IEnumerable<T>> GetAll();
         Task<bool> Any(Expression<Func<T, bool>> expression);
-        IEnumerable<T> Where(Expression<Func<T, bool>> expression);
+        Task<List<T>> Where(Expression<Func<T, bool>> expression);
         void Add(T entity);
         void AddRange(IEnumerable<T> entities);
         void Remove(T entity);

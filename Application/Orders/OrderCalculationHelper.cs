@@ -1,6 +1,6 @@
 namespace Application.Orders
 {
-    public class OrderPrintoutDto
+    public class OrderCalculationHelper
     {
         public int ArticleId { get; set; }
         public int PdfId { get; set; } = 0;

@@ -1,8 +1,7 @@
 using Application.Core;
+using Application.Interfaces;
 using FluentValidation;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Persistence;
 
 namespace Application.Article
 {
@@ -27,32 +26,31 @@ namespace Application.Article
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
-            private readonly DataContext _context;
-            public Handler(DataContext context)
+            private readonly IUnitOfWork _unitOfWork;
+            public Handler(IUnitOfWork unitOfWork)
             {
-                _context = context;
+                _unitOfWork = unitOfWork;
             }
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var fabric = await _context.Articles.FirstOrDefaultAsync(p => p.Id == request.Id);
+                var fabric = await _unitOfWork.Articles.Find(request.Id);
                 if (fabric.FullName.ToUpper() != request.FullName.ToUpper())
                 {
-                    if (await _context.Articles.AnyAsync(p => p.FullName.ToUpper() == request.FullName.ToUpper()
-                             && p.ArticleTypeId == 6))
+                    if (await _unitOfWork.Articles.IsArticleNameUsed(request.FullName,6,request.StuffId))
                     {
                         return Result<Unit>.Failure("Fabric with that name exists in database");
                     }
                 }
-                var stuff = await _context.Stuffs.FirstOrDefaultAsync(p => p.Id == request.StuffId);
+                var stuff = await _unitOfWork.Stuffs.Find(request.StuffId);
                 if (stuff == null) return null;
 
-                fabric.FullName=request.FullName;
-                fabric.NameWithoutFamilly=request.FullName;
-                fabric.StuffId=request.StuffId;
-                fabric.EditDate=DateTime.Now.Date;
+                fabric.FullName = request.FullName;
+                fabric.NameWithoutFamilly = request.FullName;
+                fabric.StuffId = request.StuffId;
+                fabric.EditDate = DateTime.Now.Date;
 
-                var result = await _context.SaveChangesAsync() > 0;
+                var result = await _unitOfWork.SaveChangesAsync();
 
                 if (!result) return Result<Unit>.Failure("Failed to edit fabric");
 

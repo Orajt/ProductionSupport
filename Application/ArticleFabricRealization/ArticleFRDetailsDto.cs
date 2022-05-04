@@ -14,7 +14,7 @@ namespace Application.ArticleFabricRealization
         public int StuffId { get; set; }
         public List<QuanityPerGroup> GroupsQuanities { get; set; } = new List<QuanityPerGroup>();
     }
-    public class ArticleFRDetails
+    public class ArticleFRDetailsDto
     {
        public string ArticleName { get; set; }
        public string VariantGroup { get; set; }
